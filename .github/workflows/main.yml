@@ -13,25 +13,26 @@ on:
         type: boolean
         default: false
       test_filter:
-        description: 'Run specific test (e.g., -k "login" or -m "smoke")'
+        description: 'Run specific test (e.g., -m "smoke")'
         required: false
         default: ''
       record_video:
-        description: 'Record videos for failed test?'
+        description: 'Record videos?'
         type: boolean
         default: false
 
-
 jobs:
-  run_specific_job_by_tags:
+  automation-suite:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12.4'
+          cache: 'pip' # Speeds up subsequent runs
 
       - name: Install dependencies
         run: |
@@ -41,37 +42,33 @@ jobs:
       - name: Install Playwright Browsers
         run: playwright install --with-deps
 
-      - name: Run pytest
-        # Mapping inputs to environment variables for conftest.py
+      - name: Run Pytest
         env:
-          RECORD_VIDEO: ${{github.event.inputs.record_video || 'false' }}
-        # Mapping GitHub Secrets to Env Vars
+          # Use 'true'/'false' strings for Python to parse easily
+          RECORD_VIDEO: ${{ inputs.record_video || 'false' }}
           USER_EMAIL: ${{ secrets.USER_EMAIL }}
           USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
           BASE_URL: https://automationexercise.com
-
-        # Use the input if provided, otherwise run all tests in the tests folder
-        # run: pytest -v -s --disable-warnings ${{ github.event.inputs.test_filter }} tests
         run: |
-          # Use standard bash if-else
-          if [ "${{ inputs.run_parallel }}" = "true" ]; then
+          # Determine Parallelism
+          # If manual input is true OR it's a push (default to parallel on push)
+          if [[ "${{ inputs.run_parallel }}" == "true" || "${{ github.event_name }}" == "push" ]]; then
             PARALLEL_ARGS="-n auto"
           else
             PARALLEL_ARGS=""
           fi
-          
-          # Run pytest with the filter and parallel args
-          pytest -v -s --disable-warnings $PARALLEL_ARGS ${{ inputs.test_filter }} tests/
 
+          # Execution call
+          # We use --dist loadscope to keep BDD scenarios together during parallel runs
+          pytest $PARALLEL_ARGS ${{ inputs.test_filter }} --dist loadscope tests/
 
-      - name: Upload Artifacts
-        if: always() # Ensures artifacts upload even if tests fail
+      - name: Upload Test Artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-results
+          name: playwright-execution-results
           path: |
-            test-results/videos/
-            test-results/screenshots/
-            test-results/reports/*.html
-          if-no-files-found: warn
+            test-results/
+            tests/reports/
+            allure-results/
           retention-days: 7

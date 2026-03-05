@@ -42,9 +42,24 @@ def playwright_page(request):
         context = browser.new_context(
             record_video_dir=video_path if save_recorded_video else None
         )
-        # Setting default wait timeout overriding default 30 seconds
-        context.set_default_timeout(5000)
+        # Keep a realistic timeout for external site/UI operations.
+        context.set_default_timeout(15000)
         page = context.new_page()
+
+        # Block specific ad domains and non-essential media
+        def block_ads(route):
+            url = route.request.url.lower()
+            resource_type = route.request.resource_type
+
+            # Add common ad keywords or domains here
+            ad_keywords = ["googleads", "ads-twitter", "facebook"]
+
+            # if any(keyword in url for keyword in ad_keywords) or resource_type in ["image", "media", "font"]:
+            if any(keyword in url for keyword in ad_keywords):
+                return route.abort()
+            return route.continue_()
+
+        page.route("**/*", block_ads)
 
         try:
             yield page

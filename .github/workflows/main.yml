@@ -23,7 +23,7 @@ on:
 
 
 jobs:
-  test:
+  run_specific_job_by_tags:
     runs-on: ubuntu-latest
 
     steps:
@@ -45,6 +45,10 @@ jobs:
         # Mapping inputs to environment variables for conftest.py
         env:
           RECORD_VIDEO: ${{github.event.inputs.record_video || 'false' }}
+        # Mapping GitHub Secrets to Env Vars
+          USER_EMAIL: ${{ secrets.USER_EMAIL }}
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+          BASE_URL: https://automationexercise.com
 
         # Use the input if provided, otherwise run all tests in the tests folder
         # run: pytest -v -s --disable-warnings ${{ github.event.inputs.test_filter }} tests

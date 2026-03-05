@@ -11,8 +11,8 @@ Feature: User Login Validation
 
     @positive_testing
     Examples:
-      | page   | user_role | result_message |
-      | /login | admin     | Logoust         |
+      | page   | user_role | result_message           |
+      | /login | admin     | Logout  Expectedd failed |
 
     @negative_testing
     Examples:

@@ -4,6 +4,7 @@ import logging
 from playwright.sync_api import Locator, Page
 
 from src.pages.base_page import BasePage
+from utils.config import Config
 
 
 class LoginPage(BasePage):
@@ -50,13 +51,10 @@ class LoginPage(BasePage):
         if role:
             username, password = self.get_credentials_by_role(role)
         elif not (username and password):
-            raise ValueError("You must provide either a 'role' or both 'username' and 'password'.")
+            username = Config.USER_EMAIL
+            password = Config.USER_PASSWORD
 
-        self.common_page.verify_element_visible(self.txt_username)
-        self.txt_username.fill(username)
+        self.common_page.enter_text(self.txt_username, username)
+        self.common_page.enter_text(self.txt_password, password)
 
-        self.common_page.verify_element_visible(self.txt_password)
-        self.txt_password.fill(password)
-
-        self.common_page.verify_element_visible(self.btn_login)
-        self.btn_login.click()
+        self.btn_login.click(timeout=15000)

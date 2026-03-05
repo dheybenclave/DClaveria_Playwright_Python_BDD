@@ -46,6 +46,7 @@ class CommonPage(BasePage):
         self.logger.debug(f"Opening Browser {target}")
         url = f"{Config.BASE_URL}{target}" if target else Config.BASE_URL
         self.page.goto(url, wait_until="domcontentloaded", timeout=15000)
+        self.page.wait_for_load_state()
         return self.page
 
     def navigate_to_by_text(self, target: str):
@@ -82,7 +83,6 @@ class CommonPage(BasePage):
         locator.fill("")
         locator.fill(value)
         self.verify_element_value(locator, value)
-        self.page.keyboard.press("Enter", delay=1500)
         return locator
 
     def press_key_element(self, locator: Locator, key_press: str):

@@ -21,6 +21,7 @@ test-results/
 .aia/
 
 # JetBrains AI / Copilot local metadata
+.idea/
 .idea/copilot*.xml
 .idea/*ask2agent*.xml
 

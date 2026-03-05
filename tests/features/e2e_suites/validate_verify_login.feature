@@ -1,0 +1,22 @@
+# Created by dheyb at 3/5/2026
+
+
+Feature: User Login Validation
+
+  @e2e @login
+  Scenario Outline: Login with valid credentials
+    Given I navigate to <page>
+    When I enter credentials using the <user_role> role
+    Then I should expect the <result_message> message
+
+    @positive_testing
+    Examples:
+      | page   | user_role | result_message |
+      | /login | admin     | Logoust         |
+
+    @negative_testing
+    Examples:
+      | page   | user_role     | result_message                       |
+      | /login | invalid_admin | Your email or password is incorrect! |
+
+

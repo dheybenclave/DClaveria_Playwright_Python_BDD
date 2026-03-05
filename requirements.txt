@@ -1,0 +1,13 @@
+playwright~=1.58.0          # Stable latest (1.58 is future-dated; 1.49 is current stable)
+pytest~=9.0.2               # Stable latest (9.x is not yet fully stable for all plugins)
+pytest-playwright           # Official Playwright plugin
+pytest-bdd                  # BDD Support
+pytest-xdist                # Parallel execution
+pytest-html                 # HTML Reporting
+python-dotenv               # Secret management
+allure-pytest               # Professional Reporting
+requests                    # For secondary api_suites handling
+pytest-splinter
+
+
+

@@ -31,3 +31,13 @@ mcp.json
 **/mcp.yaml
 **/mcp.yml
 **/.mcp.json
+
+# Python artifacts
+*.py[cod]
+.venv/
+env/
+
+# Test Reports
+allure-results/
+tests/reports/
+*.log

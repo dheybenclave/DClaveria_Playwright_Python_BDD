@@ -46,8 +46,8 @@ jobs:
         env:
           # Use 'true'/'false' strings for Python to parse easily
           RECORD_VIDEO: ${{ inputs.record_video || 'false' }}
-          USER_EMAIL: ${{ secrets.USER_EMAIL }}
-          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+          ADMIN_EMAIL: ${{ secrets.USER_ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.USER_ADMIN_PASSWORD }}
           BASE_URL: https://automationexercise.com
         run: |
           # Determine Parallelism

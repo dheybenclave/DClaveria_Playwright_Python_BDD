@@ -1,5 +1,6 @@
 from playwright.sync_api import Page, expect
-from .base_page import BasePage
+from src.pages.base_page import BasePage
+from src.pages.common_page import CommonPage
 
 
 class UserPage(BasePage):
@@ -22,3 +23,6 @@ class UserPage(BasePage):
         expect(target_row).to_be_visible()
         expect(target_row).to_contain_text(name)
         expect(target_row).to_contain_text(role)
+
+
+

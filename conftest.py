@@ -1,3 +1,4 @@
+import glob
 import os
 import shutil
 from datetime import datetime
@@ -8,6 +9,7 @@ import pytest
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 
+from src.pages.api.base_api import BaseApi
 from src.pages.base_page import BasePage
 
 load_dotenv()
@@ -90,12 +92,36 @@ def playwright_page(request):
 
 
 @pytest.fixture
-def pages(playwright_page) -> BasePage:
-    """Fixture for page object model"""
-    return BasePage(playwright_page)
+def pages(playwright_page):
+    class UnifiedPages:
+        def __init__(self, page):
+            self.ui = BasePage(page)
+            self.api = BaseApi(page.request)
+            # Keep a shared logger surface for legacy step definitions.
+            self.logger = self.ui.logger
+
+    return UnifiedPages(playwright_page)
 
 
 def pytest_configure(config):
+    # Path to the step_definitions folder
+    project_root = Path(__file__).parent
+    steps_dir = project_root / "tests" / "step_definitions"
+
+    for filepath in glob.glob(str(steps_dir / "**" / "*.py"), recursive=True):
+        path = Path(filepath)
+        if path.name in ["__init__.py", "conftest.py", "test_run.py"]:
+            continue
+
+        # CORRECT LOGIC:
+        # 1. Get the path relative to the PROJECT ROOT (the parent of 'tests')
+        # 2. Example: tests/step_definitions/login.py -> tests.step_definitions.login
+        relative_path = path.relative_to(project_root)
+        module_path = str(relative_path).replace(os.sep, ".").replace(".py", "")
+
+        config.pluginmanager.import_plugin(module_path)
+
+    # For Reporting
     report_dir = Path(config.rootpath) / "test-results" / "reports"
     report_dir.mkdir(parents=True, exist_ok=True)
 

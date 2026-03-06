@@ -9,12 +9,12 @@ Feature: User Login Validation
     When I enter credentials using the <user_role> role
     Then I should expect the <result_message> message
 
-    @positive_testing
+    @positive_testing @TC1
     Examples:
-      | page   | user_role | result_message           |
-      | /login | admin     | Logout  Expectedd failed |
+      | page   | user_role | result_message |
+      | /login | admin     | Logout         |
 
-    @negative_testing
+    @negative_testing @TC2
     Examples:
       | page   | user_role     | result_message                       |
       | /login | invalid_admin | Your email or password is incorrect! |

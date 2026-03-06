@@ -1,13 +1,15 @@
-from playwright.sync_api import Page
+import logging
 
+from playwright.sync_api import Page
 
 class BasePage:
     def __init__(self, page: Page):
         self.page = page
+        self.logger = logging.getLogger(self.__class__.__name__)
 
-    @property
-    def base_page(self):
-        return BasePage(self.page)
+    # @property
+    # def base_page(self):
+    #     return BasePage(self.page)
 
     @property
     def common_page(self):
@@ -20,3 +22,5 @@ class BasePage:
         # Local import avoids circular import with LoginPage(BasePage).
         from src.pages.login_page import LoginPage
         return LoginPage(self.page)
+
+

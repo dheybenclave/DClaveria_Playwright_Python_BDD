@@ -8,6 +8,3 @@ python-dotenv               # Secret management
 allure-pytest               # Professional Reporting
 requests                    # For secondary api_suites handling
 pytest-splinter
-
-
-

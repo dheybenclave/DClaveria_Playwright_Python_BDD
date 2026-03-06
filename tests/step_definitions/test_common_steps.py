@@ -1,28 +1,22 @@
-from pathlib import Path
+from typing import Any
 
-from playwright.sync_api import Page
-from pytest_bdd import parsers, given, then, scenarios
-from src.pages.common_page import CommonPage
-from tests.step_definitions.test_login_steps import *  # all future test steps should import in here
-
-FEATURES_DIR = Path(__file__).resolve().parents[1] / "features"
-scenarios(str(FEATURES_DIR))
+from pytest_bdd import parsers, given, then
 
 
-@given(parsers.parse("I navigate to {page_path}"))
-def navigate_to_page(playwright_page: Page, page_path):
-    playwright_page.page = CommonPage(playwright_page)
-    playwright_page.page.open_browser(page_path.strip())
-    return playwright_page
+@given(parsers.parse('I navigate to {page}'))
+def navigate_to_page(pages: Any, page: str) -> None:
+    """Navigates using the unified dynamic 'pages' factory."""
+    pages.ui.common_page.open_browser(page.strip())
 
 
 @then(parsers.parse("I should expect the {result_text_message} message"))
-def verify_login_message(pages, result_text_message):
-    if result_text_message.strip().upper() in {"N/A", "NA", "NONE", ""}:
+def verify_login_message(pages, result_text_message: str) -> None:
+    """Verifies visibility of a UI message, ignoring 'N/A' placeholders."""
+    # Using a set for O(1) lookup efficiency
+    ignore_set = {"N/A", "NA", "NONE", ""}
+
+    if not result_text_message or result_text_message.strip().upper() in ignore_set:
         return
-    pages.common_page.verify_text_visible(result_text_message)
 
+    pages.ui.common_page.verify_text_visible(result_text_message)
 
-@then(parsers.parse('the response time should be under {ms:d} ms'))
-def check_perf(api_res, ms):
-    assert api_res.perf_time < ms, f"Slow response: {api_res.perf_time}ms"

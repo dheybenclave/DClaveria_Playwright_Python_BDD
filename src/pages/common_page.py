@@ -141,9 +141,3 @@ class CommonPage(BasePage):
         locator.set_input_files(file_path)
         self.verify_element_value(locator, file_name)
         sleep(1.5)
-
-    # Universal api_suites Method
-
-    def api_call(self, request_context, method, endpoint, **kwargs):
-        self.logger.debug(f"API {method} request to {endpoint}")
-        return request_context.fetch(endpoint, method=method, **kwargs)

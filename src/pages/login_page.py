@@ -10,11 +10,8 @@ from utils.config import Config
 class LoginPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
+        self.page = page
         self.logger = logging.getLogger(self.__class__.__name__)
-
-    # ===============================================================================================
-    # Locators
-    # ===============================================================================================
 
     @property
     def txt_username(self) -> Locator:
@@ -28,10 +25,6 @@ class LoginPage(BasePage):
     def btn_login(self) -> Locator:
         return self.page.locator("button[data-qa='login-button']")
 
-    # ===============================================================================================
-    # Commands
-    # ===============================================================================================
-
     def get_credentials_by_role(self, role: str):
         self.logger.debug(f"Getting credentials by role '{role}'")
         file_path = "tests/test_datas/user_credentials.csv"
@@ -44,17 +37,17 @@ class LoginPage(BasePage):
 
         raise ValueError(f"Role '{role}' not found in CSV file.")
 
-    def login_credentials(self, role: str = None, username: str = None, password: str = None) -> None:
+    def login_credentials_by_role(self, role: str = None, username: str = None) -> None:
 
         self.logger.debug(f"Attempting login with role='{role}', username='{username}'")
 
-        if role:
-            username, password = self.get_credentials_by_role(role)
-        elif not (username and password):
-            username = Config.USER_EMAIL
-            password = Config.USER_PASSWORD
+        try:
+            creds = Config.get_credentials_env(role)
+            resolved_username = creds["email"]
+            resolved_password = creds["password"]
+        except EnvironmentError:
+            resolved_username, resolved_password = self.get_credentials_by_role(role)
 
-        self.common_page.enter_text(self.txt_username, username)
-        self.common_page.enter_text(self.txt_password, password)
-
+        self.common_page.enter_text(self.txt_username, resolved_username)
+        self.common_page.enter_text(self.txt_password, resolved_password)
         self.btn_login.click(timeout=15000)

@@ -45,8 +45,10 @@ class LoginPage(BasePage):
             creds = Config.get_credentials_env(role)
             resolved_username = creds["email"]
             resolved_password = creds["password"]
+            self.logger.debug(f"Found credentials via .env for role '{role}': username='{username}'")
         except EnvironmentError:
             resolved_username, resolved_password = self.get_credentials_by_role(role)
+            self.logger.debug(f"Found credentials for csv file for role '{role}': username='{username}'")
 
         self.common_page.enter_text(self.txt_username, resolved_username)
         self.common_page.enter_text(self.txt_password, resolved_password)

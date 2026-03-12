@@ -47,7 +47,7 @@ jobs:
           # FIX: Opt into Node 24 now to clear deprecation warnings
           FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
           RECORD_VIDEO: ${{ inputs.record_video || 'false' }}
-          TEST_CREDENTIALS_JSON: ${{ secrets.LIST_OF_CREDENTIALS }}
+          LIST_OF_CREDENTIALS: ${{ secrets.LIST_OF_CREDENTIALS }}
           BASE_URL: https://automationexercise.com
         run: |
           # Determine Parallelism

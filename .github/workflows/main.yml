@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       run_parallel:
-        description: 'Run test in parallel?'
+        description: 'Run test in parallel? (Ignored for marked sequential stages)'
         required: true
         type: boolean
         default: false
@@ -21,6 +21,13 @@ on:
         type: boolean
         default: false
 
+env:
+  # FIX: Opt into Node 24 now to clear deprecation warnings
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  RECORD_VIDEO: ${{ inputs.record_video || 'false' }}
+  TEST_CREDENTIALS_JSON: ${{ secrets.LIST_OF_CREDENTIALS }}
+  BASE_URL: https://automationexercise.com
+
 jobs:
   automation-suite:
     runs-on: ubuntu-latest
@@ -32,7 +39,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12.4'
-          cache: 'pip' # Speeds up subsequent runs
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
@@ -42,27 +49,22 @@ jobs:
       - name: Install Playwright Browsers
         run: playwright install --with-deps
 
-      - name: Run Pytest
-        env:
-          # Use 'true'/'false' strings for Python to parse easily
-          RECORD_VIDEO: ${{ inputs.record_video || 'false' }}
-          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
-          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-          USER_EMAIL: ${{ secrets.USER_EMAIL }}
-          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
-          BASE_URL: https://automationexercise.com
+      # STAGE 1: Registration/Setup (Must run alone to generate state)
+      - name: Run Stage 1 - Signup
         run: |
-          # Determine Parallelism
-          # If manual input is true OR it's a push (default to parallel on push)
-          if [[ "${{ inputs.run_parallel }}" == "true" || "${{ github.event_name }}" == "push" ]]; then
-            PARALLEL_ARGS="-n auto"
-          else
-            PARALLEL_ARGS=""
-          fi
+          mkdir -p test-results/test_state
+          pytest -m stage_1 tests/
 
-          # Execution call
-          # We use --dist loadscope to keep BDD scenarios together during parallel runs
-          pytest $PARALLEL_ARGS ${{ inputs.test_filter }} --dist loadscope tests/
+      # STAGE 2: Checkout/Actions (Depends on Stage 1 JSON)
+      - name: Run Stage 2 - Checkout
+        if: success()
+        run: pytest -m stage_2 tests/
+
+      # Optional: Run everything else (Parallel enabled here)
+      - name: Run Remaining Tests
+        if: success() && inputs.test_filter == ''
+        run: |
+          pytest -n auto -m "not stage_1 and not stage_2" --dist loadscope tests/
 
       - name: Upload Test Artifacts
         if: always()

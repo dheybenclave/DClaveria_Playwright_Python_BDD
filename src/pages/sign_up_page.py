@@ -1,3 +1,5 @@
+import logging
+
 from playwright.sync_api import Locator, Page, expect
 
 from src.pages.base_page import BasePage
@@ -7,6 +9,7 @@ from utils.test_state import context
 class SignUpPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     @property
     def txt_sign_up_name(self) -> Locator:

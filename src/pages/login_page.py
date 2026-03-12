@@ -37,21 +37,40 @@ class LoginPage(BasePage):
         raise ValueError(f"Role '{role}' not found in CSV file.")
 
     def login_credentials_by_role(self, role: str = None) -> None:
-        self.logger.debug(f"Credentials found using {role}")
-        try:
-            # 1. Try JSON credentials from GitHub Secret
-            creds = Config.get_credentials(role)
-            username, password = creds["email"], creds["password"]
-            found_by = "GitHub JSON > .env Secret"
-        except (EnvironmentError, ValueError):
-            # 2. Fallback to your Excel/local logic
-            username, password = self.get_credentials_by_role(role)
-            found_by = "Excel File"
+        """
+        Authenticates a user based on their role, searching through:
+        1. GitHub JSON Secret (CI/CD)
+        2. Local .env variables (Dev)
+        3. Excel Database (Legacy/Fallback)
+        """
+        self.logger.debug(f"Initiating login sequence for role: '{role}'")
 
-        self.logger.debug(f"Credentials found using {found_by}")
+        try:
+            # 1. Attempt to fetch from Config (covers JSON Secret and .env Fallback)
+            creds = Config.get_credentials(role)
+            username = creds["email"]
+            password = creds["password"]  # Map the 'pw' from JSON or 'PASSWORD' from .env
+            found_by = "Cloud/Env Config"
+
+        except (EnvironmentError, ValueError, KeyError) as e:
+            self.logger.warning(f"Config lookup failed for '{role}': {e}. Trying Excel...")
+
+            # 2. Fallback to local Excel logic
+            try:
+                username, password = self.get_credentials_by_role(role)
+                found_by = "Excel File"
+            except Exception as excel_err:
+                self.logger.error(f"Final fallback failed. No credentials found for '{role}'")
+                raise excel_err
+
+        # Masking the username for secure logging (e.g., adm***@test.com)
+        masked_user = f"{username[:3]}***{username[username.find('@'):]}" if "@" in username else "***"
+        self.logger.info(f"Successfully retrieved credentials via {found_by} for {role} ({masked_user})")
+
+        # UI Interaction
         self.common_page.enter_text(self.txt_username, username)
         self.common_page.enter_text(self.txt_password, password)
-        self.btn_login.click()
+        self.btn_login.click(timeout=15000)
 
     def login_credentials(self, username: str, password: str) -> None:
         self.logger.debug(f"Credentials found using username and passowerd")

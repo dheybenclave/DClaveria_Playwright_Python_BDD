@@ -3,7 +3,7 @@ import time
 from pytest_bdd import when, then, parsers
 
 
-# Using target_fixture to pass data between steps (Performance, JSON, Response)
+# Using target_fixture to pass data between steps (Performance, json, Response)
 @when(parsers.parse('I send a "{method}" request to "{endpoint}"'), target_fixture="api_response_data")
 def send_request(pages, method, endpoint):
     # Dynamically resolve the API module (get_all_product_list.py)

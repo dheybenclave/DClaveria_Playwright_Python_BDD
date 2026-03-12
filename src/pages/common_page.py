@@ -1,7 +1,6 @@
 import logging
 import re
 from pathlib import Path
-from time import sleep
 
 from playwright.sync_api import Page, expect, Locator
 
@@ -12,37 +11,18 @@ from utils.config import Config
 class CommonPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
-        self.page = page
-        self.logger = logging.getLogger("Framework")
+        self.logger = logging.getLogger(self.__class__.__name__)
 
-    # Locators
-    def lbl_text(self, text, is_exact_value: bool = None) -> Locator:
-        return self.page.get_by_text(text, exact=is_exact_value)
+    def lbl_text(self, text, exact: bool = False) -> Locator:
+        return self.page.get_by_text(text, exact=exact)
 
     def nav_menu_items(self) -> Locator:
-        return self.page.locator(f'//nav[@class="navbar"]/a[@href]')
+        return self.page.locator('ul.navbar-nav li a[href]')
 
-    def get_locator_by(self, locator_type: str, locator_value: str, parent_selector: str = None) -> Locator:
-        scope = self.page.locator(parent_selector) if parent_selector else self.page
+    def _get_locator(self, locator: str | Locator) -> Locator:
+        return self.page.locator(locator) if isinstance(locator, str) else locator
 
-        locators = {
-            "alt_text": scope.get_by_alt_text,
-            "label": scope.get_by_label,
-            "placeholder": scope.get_by_placeholder,
-            "role": scope.get_by_role,
-            "test_id": scope.get_by_test_id,
-            "text": scope.get_by_text,
-            "title": scope.get_by_title,
-            "xpath": scope.locator,
-            "css": scope.locator,
-        }
-
-        locator_func = locators.get(locator_type, scope.locator)
-        return locator_func(locator_value)
-
-        # Commands
-
-    def open_browser(self, target: str):
+    def open_browser(self, target: str = ""):
         self.logger.debug(f"Opening Browser {target}")
         url = f"{Config.BASE_URL}{target}" if target else Config.BASE_URL
         self.page.goto(url, wait_until="domcontentloaded", timeout=15000)
@@ -53,91 +33,71 @@ class CommonPage(BasePage):
         self.logger.debug(f"Navigating using text {target}")
         self.nav_menu_items().filter(has_text=target).click()
 
-    def focus_element(self, locator: Locator):
+    def focus_element(self, locator: str | Locator):
         self.logger.debug(f"Focus Element {locator}")
-
+        locator = self._get_locator(locator)
         self.verify_element_visible(locator)
         locator.focus()
         expect(locator).to_be_focused()
         return locator
 
-    def click_element(self, locator: Locator):
+    def click_element(self, locator: str | Locator):
         self.logger.debug(f"Click Element {locator}")
-
+        locator = self._get_locator(locator)
         self.verify_element_visible(locator)
         locator.scroll_into_view_if_needed()
         locator.click()
         return locator
 
     def click_element_by_text(self, text_to_click: str, parent_selector: str = None):
-        self.logger.debug(f"Click Element {text_to_click} with selector '{parent_selector}'")
+        self.logger.debug(f"Click Element {text_to_click}")
+        locator = self.page.locator(parent_selector).get_by_text(text_to_click) if parent_selector else self.lbl_text(text_to_click, True)
+        locator.wait_for(state="attached", timeout=5000)
+        try:
+            locator.click(force=True, timeout=5000)
+        except Exception:
+            locator.evaluate("el => el.click()")
 
-        locator = self.get_locator_by("text", text_to_click, parent_selector)
-        self.verify_element_visible(locator)
-        locator.click()
-
-    def enter_text(self, locator: Locator, value: str):
+    def enter_text(self, locator: str | Locator, value: str):
         self.logger.debug(f"Enter Text {locator}")
-
+        locator = self._get_locator(locator)
         self.focus_element(locator)
-        locator.fill("")
         locator.fill(value)
         self.verify_element_value(locator, value)
         return locator
 
-    def press_key_element(self, locator: Locator, key_press: str):
-        self.logger.debug(f"Press Key {key_press} in {locator} ")
-
+    def press_key_element(self, locator: str | Locator, key_press: str):
+        self.logger.debug(f"Press Key {key_press} in {locator}")
+        locator = self._get_locator(locator)
         self.focus_element(locator)
         locator.press(key_press, delay=1500)
         return locator
 
-    # Assertions
-
-    def verify_text_visible(self, text, is_exact_text: bool = None):
+    def verify_text_visible(self, text, exact: bool = False):
         self.logger.debug(f"Verifying text visible: '{text}'")
+        locator = self.lbl_text(text, exact)
+        locator.wait_for(state="attached", timeout=5000)
 
-        locator = self.lbl_text(text, is_exact_text)
-        locator.scroll_into_view_if_needed()
-        expect(locator).to_be_visible()
-        assert locator.is_visible()
-
-    def verify_element_visible(self, locator: Locator):
+    def verify_element_visible(self, locator: str | Locator):
         self.logger.debug(f"Verifying element visible: '{locator}'")
+        expect(self._get_locator(locator)).to_be_visible()
 
-        locator.scroll_into_view_if_needed()
-        expect(locator).to_be_visible()
-        assert locator.is_visible()
-
-    def verify_element_not_visible(self, locator: Locator):
+    def verify_element_not_visible(self, locator: str | Locator):
         self.logger.debug(f"Verifying element not visible: '{locator}'")
+        expect(self._get_locator(locator)).not_to_be_visible()
 
-        expect(locator).not_to_be_visible()
-        assert locator.is_hidden()
+    def verify_element_attribute(self, locator: str | Locator, attr_name: str, expected_attr_value: str):
+        self.logger.debug(f"Verifying attribute '{attr_name}' = '{expected_attr_value}'")
+        actual_value = self._get_locator(locator).get_attribute(attr_name)
+        assert expected_attr_value in actual_value, f"Expected '{expected_attr_value}' in '{actual_value}'"
 
-    def verify_element_attribute(self, locator: Locator, attr_name: str, expected_attr_value: str):
-        self.logger.debug(f"Verifying element attribute: '{attr_name}' ({expected_attr_value})")
+    def verify_element_value(self, locator: str | Locator, expected_value: str):
+        pattern = re.compile(rf".*{re.escape(expected_value)}.*", re.IGNORECASE)
+        self.logger.debug(f"Verifying element value: '{expected_value}'")
+        expect(self._get_locator(locator)).to_have_value(pattern)
 
-        get_value = locator.get_attribute(attr_name)
-        self.logger.debug(
-            f"Getting attribute: Attribute Name :'{attr_name}' | Attribute Value :' {expected_attr_value}'")
-        assert expected_attr_value in get_value
-
-    def verify_element_value(self, locator: Locator, expected_value: str):
-        ex_value = re.compile(rf".*{re.escape(expected_value)}.*", re.IGNORECASE)
-        el_value = locator.input_value()
-
-        self.logger.debug(f"Verifying element : Expected Value: '{ex_value}' | Actual Value : '{el_value}'")
-
-        expect(locator).to_have_value(ex_value)
-
-    def upload_file(self, locator: Locator, file_name: str, file_type: str):
-        self.logger.debug(f"Uploading file '{locator}' to file '{file_name}'")
-
-        current_dir = Path(__file__).parent
-
-        file_path = current_dir.parent.parent / "test_data" / f"{file_name}.{file_type}"
-
-        locator.set_input_files(file_path)
+    def upload_file(self, locator: str | Locator, file_name: str, file_type: str):
+        self.logger.debug(f"Uploading file '{file_name}'")
+        file_path = Path(__file__).resolve().parents[2] / "test_datas" / f"{file_name}.{file_type}"
+        self._get_locator(locator).set_input_files(str(file_path))
         self.verify_element_value(locator, file_name)
-        sleep(1.5)

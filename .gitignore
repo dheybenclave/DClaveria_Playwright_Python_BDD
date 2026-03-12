@@ -41,4 +41,5 @@ env/
 # Test Reports
 allure-results/
 tests/reports/
+test-results/test_state/*.json
 *.log

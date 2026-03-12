@@ -18,7 +18,9 @@ load_dotenv()
 def _safe_path_part(value: str) -> str:
     invalid = '<>:"/\\|?*[]'
     safe = "".join("_" if ch in invalid else ch for ch in value)
-    return safe.strip() or "unnamed_test"
+    safe = safe.replace(" ", "_")
+    safe = safe.strip("_") or "unnamed_test"
+    return safe[:80]
 
 
 @pytest.fixture

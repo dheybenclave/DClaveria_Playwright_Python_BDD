@@ -4,7 +4,7 @@
 Feature: User Login Validation
 
   @e2e @login
-  Scenario Outline: Login with valid credentials
+  Scenario Outline: Login with credentials
     Given I navigate to <page>
     When I enter credentials using the <user_role> role
     Then I should expect the <result_message> message

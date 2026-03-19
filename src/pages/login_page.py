@@ -25,6 +25,14 @@ class LoginPage(BasePage):
     def btn_login(self) -> Locator:
         return self.page.locator("button[data-qa='login-button']")
 
+    @property
+    def btn_logout(self) -> Locator:
+        return self.page.locator("a[href='/logout']")
+
+    @property
+    def btn_continue(self) -> Locator:
+        return self.page.locator("a[data-qa='continue-button']")
+
     def get_credentials_by_role(self, role: str):
         file_path = "tests/test_datas/excel_file/user_credentials.csv"
 
@@ -43,13 +51,13 @@ class LoginPage(BasePage):
         2. Local .env variables (Dev)
         3. Excel Database (Legacy/Fallback)
         """
-        self.logger.debug(f"Initiating login sequence for role: '{role}'")
+        self.logger.info(f"Initiating login sequence for role: '{role}'")
 
         try:
             # 1. Attempt to fetch from Config (covers JSON Secret and .env Fallback)
             creds = Config.get_credentials(role)
             username = creds["email"]
-            password = creds["password"]  # Map the 'pw' from JSON or 'PASSWORD' from .env
+            password = creds["password"]  # Map the 'password' from JSON or 'PASSWORD' from .env
             found_by = "Cloud/Env Config"
 
         except (EnvironmentError, ValueError, KeyError) as e:
@@ -73,33 +81,21 @@ class LoginPage(BasePage):
         self.btn_login.click(timeout=15000)
 
     def login_credentials(self, username: str, password: str) -> None:
-        self.logger.debug(f"Credentials found using username and passowerd")
+        self.logger.info(f"Credentials found using username and password")
         self.common_page.enter_text(self.txt_username, username)
         self.common_page.enter_text(self.txt_password, password)
         self.btn_login.click()
 
     def login_credential_with_created_user(self) -> None:
-        self.logger.debug(f"Credentials found using username and password to create user")
-        try:
-            visible = self.txt_username.is_visible(timeout=3000)
-        except Exception:
-            visible = False
+        self.logger.info(f"Credentials found using username and password to create user")
 
-        if not visible:
-            self.common_page.open_browser("/login")
-            login_link = self.page.get_by_role("link", name="Signup / Login")
-            logout_link = self.page.get_by_role("link", name="Logout")
+        self.common_page.click_element(self.btn_continue)
+        self.page.wait_for_load_state()
 
-            if logout_link.count() > 0:
-                logout_link.first.click()
-                login_link = self.page.get_by_role("link", name="Signup / Login")
+        self.common_page.click_element(self.btn_logout)
+        self.page.wait_for_load_state()
 
-            if login_link.count() > 0:
-                login_link.first.click()
-            else:
-                self.common_page.open_browser("/login")
-
-            expect(self.txt_username).to_be_visible(timeout=10000)
+        expect(self.txt_username).to_be_visible(timeout=10000)
 
         self.common_page.enter_text(self.txt_username, context.get_strict("email"))
         self.common_page.enter_text(self.txt_password, context.get_strict("password"))

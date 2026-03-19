@@ -40,11 +40,12 @@ def playwright_page(request):
     headless_env = os.environ.get("HEADLESS", "true").lower() == "true"
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=headless_env)
+        browser = p.chromium.launch(headless=headless_env, args=["--start-maximized"])
 
         # Always enable recording if the ENV is true so Playwright captures the session
         context = browser.new_context(
-            record_video_dir=video_path if save_recorded_video else None
+            record_video_dir=video_path if save_recorded_video else None,
+            no_viewport=True
         )
         # Keep a realistic timeout for external site/UI operations.
         context.set_default_timeout(15000)

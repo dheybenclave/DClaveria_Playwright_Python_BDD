@@ -9,7 +9,7 @@ class Utility:
     def __init__(self):
         self.base_data_path = Path(__file__).resolve().parents[1] / "tests" / "test_datas"
 
-    def get_json_data(self, filename, user_id=None):
+    def get_json_data(self, filename, id=None):
         file_path = self.base_data_path / "json" / filename
 
         if not file_path.exists():
@@ -18,8 +18,8 @@ class Utility:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
-        if user_id:
-            return next((item for item in data if item["user_id"] == str(user_id)), None)
+        if id:
+            return next((item for item in data if item["id"] == str(id)), None)
         return data
 
     @staticmethod

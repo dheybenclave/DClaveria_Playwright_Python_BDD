@@ -27,9 +27,8 @@ class SignUpPage(BasePage):
     def btn_sign_up(self) -> Locator:
         return self.page.locator("[data-qa='signup-button']")
 
-    @property
-    def opt_btn_title(self) -> Locator:
-        return self.page.locator("//label[text()='Title']/parent::div")
+    def opt_btn_title(self, text) -> Locator:
+        return self.page.locator(f"[value='{text}']")
 
     @property
     def btn_create_account(self) -> Locator:
@@ -45,6 +44,7 @@ class SignUpPage(BasePage):
         context.set("password", generated_password)
         generate_name = test_data["firstname"]
         context.set("firstname", generate_name)
+        context.set("full_name", f"{test_data["firstname"]} {test_data['lastname']}")
 
         self.common_page.enter_text(self.txt_sign_up_name, generate_name)
         self.common_page.enter_text(self.txt_sign_up_email, generated_email)
@@ -52,7 +52,7 @@ class SignUpPage(BasePage):
 
         self.page.wait_for_load_state("domcontentloaded", timeout=10000)
         expect(self.common_page.lbl_text("Enter Account Information")).to_be_visible()
-        self.page.check(f"[value='{test_data['title']}']")
+        self.opt_btn_title(test_data["title"]).check()
 
         def _normalize(value, default):
             try:
@@ -67,10 +67,12 @@ class SignUpPage(BasePage):
         expect(self.page.locator("#days")).to_be_enabled()
         expect(self.page.locator("#months")).to_be_enabled()
         expect(self.page.locator("#years")).to_be_enabled()
+        expect(self.page.locator("#country")).to_be_enabled()
 
         self.page.select_option("#days", day_value)
         self.page.select_option("#months", month_value)
         self.page.select_option("#years", year_value)
+        self.page.select_option("#country", test_data.get("country"))
 
         address_fields = {
             '#first_name': 'firstname',

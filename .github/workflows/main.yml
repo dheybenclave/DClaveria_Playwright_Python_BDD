@@ -24,6 +24,10 @@ on:
 jobs:
   automation-suite:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      BASE_URL: https://automationexercise.com
+      HEADLESS: "true"
 
     steps:
       - uses: actions/checkout@v4
@@ -50,11 +54,8 @@ jobs:
 
       - name: Run Pytest
         env:
-          # FIX: Opt into Node 24 now to clear deprecation warnings
-          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
           RECORD_VIDEO: ${{ inputs.record_video || 'false' }}
           LIST_OF_CREDENTIALS: ${{ secrets.LIST_OF_CREDENTIALS }}
-          BASE_URL: https://automationexercise.com
         run: |
           # Determine Parallelism
           # If manual input is true OR it's a push (default to parallel on push)

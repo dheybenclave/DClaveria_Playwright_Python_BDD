@@ -18,6 +18,11 @@ on:
 jobs:
   qa-bootstrap:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      BASE_URL: https://automationexercise.com
+      HEADLESS: "true"
+      RECORD_VIDEO: "false"
 
     steps:
       - name: Checkout
@@ -52,8 +57,6 @@ jobs:
       - name: Run targeted regression marker
         if: ${{ inputs.run_targeted_tests != false }}
         env:
-          BASE_URL: https://automationexercise.com
-          RECORD_VIDEO: "false"
           LIST_OF_CREDENTIALS: ${{ secrets.LIST_OF_CREDENTIALS }}
         run: |
           if [ -n "${{ inputs.marker }}" ]; then

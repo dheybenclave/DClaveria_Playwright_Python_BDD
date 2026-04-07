@@ -1,7 +1,7 @@
 @api @regression
 Feature: Brands API Validation
 
-  @api @TC4
+  @api @TC8 @e2e
   Scenario: Get all brands list and verify response structure
     When I send a "GET" request to "/api/brandsList"
     Then the API response status code should be 200

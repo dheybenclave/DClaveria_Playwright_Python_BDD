@@ -40,6 +40,10 @@ env/
 
 # Test Reports
 allure-results/
+allure-report/
 tests/reports/
 test-results/test_state/*.json
 *.log
+
+# Node (local CLI tooling)
+node_modules/

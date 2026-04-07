@@ -51,9 +51,15 @@ A lean, interview-ready test framework that demonstrates modern UI automation pa
 
 ## Reporting & Artifacts
 - HTML: `test-results/reports/report.html` (per run, self-contained).
+- Allure raw results: `allure-results/`.
+- Allure HTML (auto-generated after pytest run): `allure-report/`.
 - Screenshots: `test-results/screenshots/` on failure.
 - Videos: `test-results/videos/` when `RECORD_VIDEO=true`.
 - Logs: CLI at INFO; file `test-results/pytest-logs.log` at DEBUG.
+
+Open Allure report locally:
+- `npx allure open allure-report`
+- `npx allure serve allure-results`
 
 ## Agentic QA Setup (Cursor + Claude-style workflows)
 - Project-local AI workflow configs are included:
@@ -65,6 +71,9 @@ A lean, interview-ready test framework that demonstrates modern UI automation pa
 - Step-by-step onboarding for future QA engineers:
   - `.cursor/AGENTIC_QA_GUIDE.md`
   - `.claude/AGENTIC_QA_GUIDE.md`
+- Root agent guides:
+  - `.CURSOR.md`
+  - `.CLAUDE.md`
 - Migration notes:
   - `.cursor/MIGRATION_NOTES.md`
 
@@ -72,6 +81,7 @@ A lean, interview-ready test framework that demonstrates modern UI automation pa
 - GitHub Actions:
   - Existing: `.github/workflows/main.yml`
   - Agentic bootstrap + validation: `.github/workflows/agentic-qa.yml`
+  - Both workflows now generate and upload `allure-report/` artifact.
 - Jenkins:
   - Pipeline template: `Jenkinsfile`
 - Local bootstrap command (PowerShell):

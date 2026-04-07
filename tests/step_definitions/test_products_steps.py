@@ -10,7 +10,6 @@ def search_product_using_filter(pages, filters):
 def select_product_using_index(pages, product_index):
     pages.ui.products_page.select_product_index(product_index)
 
-
 @when(parsers.parse("I Add to cart with a quantity value of {quantity}"))
 def add_to_cart_with_quantity(pages, quantity):
     for quantity in range(1, int(quantity) + 1):

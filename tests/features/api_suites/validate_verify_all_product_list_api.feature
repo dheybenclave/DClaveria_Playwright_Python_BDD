@@ -1,7 +1,7 @@
 @api @regression
 Feature: Product API Validation
 
-  @api @TC3
+  @api @TC3 @e2e
   Scenario: Get all products list and verify response structure
     When I send a "GET" request to "/api/productsList"
     Then the API response status code should be 200

@@ -1,6 +1,7 @@
 import glob
 import os
 import shutil
+import subprocess
 from datetime import datetime
 from pathlib import Path
 
@@ -148,6 +149,49 @@ def pytest_sessionfinish(session, exitstatus):
     htmlpath = getattr(session.config.option, "htmlpath", None)
     if htmlpath:
         Path(htmlpath).parent.mkdir(parents=True, exist_ok=True)
+
+    # Auto-generate Allure HTML after pytest run (controller process only).
+    if hasattr(session.config, "workerinput"):
+        return
+
+    auto_allure = os.environ.get("AUTO_GENERATE_ALLURE", "true").lower() == "true"
+    if not auto_allure:
+        return
+
+    allure_bin = shutil.which("allure")
+    use_npx_allure = False
+    if not allure_bin:
+        npx_bin = shutil.which("npx")
+        if npx_bin:
+            allure_bin = npx_bin
+            use_npx_allure = True
+        else:
+            print("[Allure] Skipped HTML generation: neither 'allure' nor 'npx' found in PATH.")
+            return
+
+    root = Path(session.config.rootpath)
+    results_dir = root / "allure-results"
+    report_dir = root / "allure-report"
+    if not results_dir.exists():
+        print("[Allure] Skipped HTML generation: 'allure-results' not found.")
+        return
+
+    if use_npx_allure:
+        cmd = [allure_bin, "allure", "generate", str(results_dir), "-o", str(report_dir), "--clean"]
+    else:
+        cmd = [allure_bin, "generate", str(results_dir), "-o", str(report_dir), "--clean"]
+    try:
+        completed = subprocess.run(cmd, check=False, capture_output=True, text=True)
+        if completed.returncode == 0:
+            print(f"[Allure] HTML report generated at: {report_dir}")
+        else:
+            print("[Allure] Failed to generate HTML report.")
+            if completed.stdout:
+                print(completed.stdout.strip())
+            if completed.stderr:
+                print(completed.stderr.strip())
+    except Exception as exc:
+        print(f"[Allure] Error while generating HTML report: {exc}")
 
 
 def log_api_details(response):

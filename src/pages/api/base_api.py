@@ -17,3 +17,8 @@ class BaseApi:
         # Local import avoids circular import with LoginPage(BasePage).
         from src.pages.api.get.get_all_product_list import GetAllProductList
         return GetAllProductList(self.request)
+
+    @property
+    def get_all_brands_list(self):
+        from src.pages.api.get.get_all_brands_list import GetAllBrandsList
+        return GetAllBrandsList(self.request)

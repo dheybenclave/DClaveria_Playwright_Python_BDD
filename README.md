@@ -30,7 +30,7 @@ A lean, interview-ready test framework that demonstrates modern UI automation pa
 
 ## Setup
 1) Python 3.8+ installed.  
-2) Clone: `git clone https://github.com/BlissCoders/playwright_fundamentals.git`  
+2) Clone: `git clone https://github.com/dheybenclave/DClaveria_Playwright_Python_BDD.git`  
 3) Create venv & activate:  
    - Windows: `python -m venv .venv && .\\.venv\\Scripts\\activate`  
    - macOS/Linux: `python -m venv .venv && source .venv/bin/activate`
@@ -54,6 +54,31 @@ A lean, interview-ready test framework that demonstrates modern UI automation pa
 - Screenshots: `test-results/screenshots/` on failure.
 - Videos: `test-results/videos/` when `RECORD_VIDEO=true`.
 - Logs: CLI at INFO; file `test-results/pytest-logs.log` at DEBUG.
+
+## Agentic QA Setup (Cursor + Claude-style workflows)
+- Project-local AI workflow configs are included:
+  - Cursor rules: `.cursor/rules/`
+  - Cursor hooks: `.cursor/hooks.json` and `.cursor/hooks/`
+  - Cursor MCP template: `.cursor/mcp.json`
+  - Claude-style commands/rules: `.claude/commands/` and `.claude/rules/`
+  - Claude-style runtime config: `.claude/settings.json` and `.claude/hooks/`
+- Step-by-step onboarding for future QA engineers:
+  - `.cursor/AGENTIC_QA_GUIDE.md`
+  - `.claude/AGENTIC_QA_GUIDE.md`
+- Migration notes:
+  - `.cursor/MIGRATION_NOTES.md`
+
+## CI/CD Agentic Integration
+- GitHub Actions:
+  - Existing: `.github/workflows/main.yml`
+  - Agentic bootstrap + validation: `.github/workflows/agentic-qa.yml`
+- Jenkins:
+  - Pipeline template: `Jenkinsfile`
+- Local bootstrap command (PowerShell):
+  - `./scripts/bootstrap_agentic_qa.ps1`
+
+For usage examples (test generation, self-healing selector triage, and planning),
+see `.cursor/AGENTIC_QA_GUIDE.md`.
 
 ## Conventions
 - Tags: `@TC#` for traceability, `@e2e`, `@positive_testing` for grouping.

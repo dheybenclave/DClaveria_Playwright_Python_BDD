@@ -6,11 +6,18 @@ from pytest_bdd import when, then, parsers
 # Using target_fixture to pass data between steps (Performance, json, Response)
 @when(parsers.parse('I send a "{method}" request to "{endpoint}"'), target_fixture="api_response_data")
 def send_request(pages, method, endpoint):
-    # Dynamically resolve the API module (get_all_product_list.py)
-    api_client = pages.api.get_all_product_list
+    endpoint_key = endpoint.strip().lower()
+    if endpoint_key == "/api/productslist":
+        api_client = pages.api.get_all_product_list
+        response_call = api_client.get_all_products
+    elif endpoint_key == "/api/brandslist":
+        api_client = pages.api.get_all_brands_list
+        response_call = api_client.get_all_brands
+    else:
+        raise AssertionError(f"Unsupported endpoint in this step file: {endpoint}")
 
     start_time = time.perf_counter()
-    response = api_client.get_all_products()
+    response = response_call()
     duration_ms = round((time.perf_counter() - start_time) * 1000)
     response_json = response.json()
 
@@ -23,11 +30,14 @@ def send_request(pages, method, endpoint):
 
 @then(parsers.parse('the API response status code should be {status:d}'))
 def verify_status(pages, api_response_data, status):
-    # Accessing the specific validation logic in the dynamically loaded API class
-    pages.api.get_all_product_list.verify_response_status_code(
-        api_response_data["response"],
-        status
-    )
+    response_json = api_response_data["json"]
+    if "products" in response_json:
+        pages.api.get_all_product_list.verify_response_status_code(api_response_data["response"], status)
+        return
+    if "brands" in response_json:
+        pages.api.get_all_brands_list.verify_response_status_code(api_response_data["response"], status)
+        return
+    raise AssertionError("Unknown response payload; cannot verify status.")
 
 
 @then("the response should contain a list of products")
@@ -55,6 +65,19 @@ def verify_product_schema_from_table(datatable, pages, api_response_data):
 
 @then(parsers.parse('the API response time should be under {limit:d} ms'))
 def verify_performance(pages, api_response_data, limit):
-    # Logic remains inside the specific API class for specialized performance thresholds
     get_duration = api_response_data["duration"]
-    pages.api.get_all_product_list.verify_performance_of_response(get_duration, limit)
+    response_json = api_response_data["json"]
+    if "products" in response_json:
+        pages.api.get_all_product_list.verify_performance_of_response(get_duration, limit)
+        return
+    if "brands" in response_json:
+        pages.api.get_all_brands_list.verify_performance_of_response(get_duration, limit)
+        return
+    raise AssertionError("Unknown response payload; cannot verify performance.")
+
+
+@then("the response should contain a list of brands")
+def verify_brand_list_exists(api_response_data):
+    json_data = api_response_data["json"]
+    assert "brands" in json_data, "Key 'brands' missing from response"
+    assert len(json_data["brands"]) > 0, "Brands list is empty"

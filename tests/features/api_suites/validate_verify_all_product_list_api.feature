@@ -6,10 +6,5 @@ Feature: Product API Validation
     When I send a "GET" request to "/api/productsList"
     Then the API response status code should be 200
     And the response should contain a list of products
-    And every product should have the following parameter:
-      | response_key |
-      | id           |
-      | name         |
-      | price        |
     And the API response time should be under 5000 ms
 

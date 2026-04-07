@@ -1,0 +1,67 @@
+name: Agentic QA Bootstrap and Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      marker:
+        description: "Optional pytest marker filter (example: TC6 or TC7)"
+        required: false
+        default: ""
+      run_targeted_tests:
+        description: "Run targeted pytest marker after smoke collect"
+        required: true
+        type: boolean
+        default: true
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  qa-bootstrap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Playwright browsers
+        run: |
+          python -m playwright install --with-deps || python -m playwright install
+
+      - name: Agentic init checks
+        run: |
+          python .cursor/skills/init/scripts/verify_env.py
+          python .cursor/skills/init/scripts/smoke_collect.py
+
+      - name: Run targeted regression marker
+        if: ${{ inputs.run_targeted_tests != false }}
+        env:
+          BASE_URL: https://automationexercise.com
+          RECORD_VIDEO: "false"
+          LIST_OF_CREDENTIALS: ${{ secrets.LIST_OF_CREDENTIALS }}
+        run: |
+          if [ -n "${{ inputs.marker }}" ]; then
+            pytest -m "${{ inputs.marker }}" -q
+          else
+            pytest -m "TC6 or TC7" -q
+          fi
+
+      - name: Upload QA artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agentic-qa-artifacts
+          path: |
+            test-results/
+            allure-results/
+          retention-days: 7

@@ -56,6 +56,17 @@ def parse_env_file(env_path: Path) -> dict:
     return data
 
 
+def get_env_from_environment() -> dict:
+    """Get environment variables that match required/optional keys."""
+    data = {}
+    all_keys = REQUIRED_ENV_KEYS + OPTIONAL_ENV_KEYS
+    for key in all_keys:
+        value = os.environ.get(key)
+        if value is not None:
+            data[key] = value
+    return data
+
+
 def mask_value(value: str) -> str:
     if not value:
         return "(empty)"
@@ -66,17 +77,32 @@ def mask_value(value: str) -> str:
 
 def check_env_file() -> bool:
     env_path = Path(".env")
-    if not env_path.exists():
-        print("[WARN] .env file not found")
-        return False
-
-    print("[PASS] .env file found")
     values = parse_env_file(env_path)
+    
+    # Also get values from environment variables (for CI/CD)
+    env_vars = get_env_from_environment()
+    for key, value in env_vars.items():
+        if key not in values or not values[key]:
+            values[key] = value
+    
+    # Check if .env file exists (but don't fail if it's missing in CI)
+    if not env_path.exists():
+        print("[WARN] .env file not found (will check environment variables)")
+        # In CI, we may not have .env file, so check if env vars are available
+        if env_vars:
+            print("[INFO] Using environment variables from CI/CD")
+        else:
+            print("[WARN] No .env file and no environment variables found")
+    
+    if env_path.exists():
+        print("[PASS] .env file found")
+    
     required_ok = True
 
     for key in REQUIRED_ENV_KEYS:
         if key in values and values[key] != "":
-            print(f"[PASS] .env key present: {key}")
+            masked = mask_value(values[key]) if key not in ["BASE_URL", "HEADLESS"] else values[key]
+            print(f"[PASS] .env key present: {key}={masked}")
         else:
             required_ok = False
             print(f"[FAIL] .env key missing/empty: {key}")

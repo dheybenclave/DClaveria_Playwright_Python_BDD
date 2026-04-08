@@ -52,6 +52,9 @@ jobs:
       - name: Install Playwright Browsers
         run: playwright install --with-deps
 
+      - name: Verify Environment
+        run: python .cursor/skills/init/scripts/verify_env.py
+
       - name: Run Pytest
         env:
           RECORD_VIDEO: ${{ inputs.record_video || 'false' }}

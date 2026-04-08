@@ -171,27 +171,29 @@ def pytest_sessionfinish(session, exitstatus):
 
     root = Path(session.config.rootpath)
     results_dir = root / "allure-results"
-    report_dir = root / "allure-report"
     if not results_dir.exists():
         print("[Allure] Skipped HTML generation: 'allure-results' not found.")
         return
 
     if use_npx_allure:
-        cmd = [allure_bin, "allure", "generate", str(results_dir), "-o", str(report_dir), "--clean"]
+        cmd = [allure_bin, "allure", "serve", str(results_dir)]
     else:
-        cmd = [allure_bin, "generate", str(results_dir), "-o", str(report_dir), "--clean"]
+        cmd = [allure_bin, "serve", str(results_dir)]
+    
+    is_ci = os.environ.get("CI", "").lower() == "true"
+    auto_open = os.environ.get("AUTO_OPEN_ALLURE", "true").lower() == "true"
+    
     try:
-        completed = subprocess.run(cmd, check=False, capture_output=True, text=True)
-        if completed.returncode == 0:
-            print(f"[Allure] HTML report generated at: {report_dir}")
+        if auto_open and not is_ci:
+            completed = subprocess.run(cmd, check=False)
+            if completed.returncode == 0:
+                print(f"[Allure] Report opened in browser")
+            else:
+                print("[Allure] Failed to serve report.")
         else:
-            print("[Allure] Failed to generate HTML report.")
-            if completed.stdout:
-                print(completed.stdout.strip())
-            if completed.stderr:
-                print(completed.stderr.strip())
+            print(f"[Allure] Run 'npx allure serve {results_dir}' to view report")
     except Exception as exc:
-        print(f"[Allure] Error while generating HTML report: {exc}")
+        print(f"[Allure] Error while serving report: {exc}")
 
 
 def log_api_details(response):

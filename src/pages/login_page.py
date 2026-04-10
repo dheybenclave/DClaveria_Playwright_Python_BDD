@@ -3,12 +3,12 @@ import logging
 
 from playwright.sync_api import Locator, Page, expect
 
-from src.pages.base_page import BasePage
+from src.pages.base_page import UIBasePage
 from utils.config import Config
 from utils.test_state import context
 
 
-class LoginPage(BasePage):
+class LoginPage(UIBasePage):
     def __init__(self, page: Page):
         super().__init__(page)
         self.logger = logging.getLogger(self.__class__.__name__)

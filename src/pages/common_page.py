@@ -4,11 +4,11 @@ from pathlib import Path
 
 from playwright.sync_api import Page, expect, Locator
 
-from src.pages.base_page import BasePage
+from src.pages.base_page import UIBasePage
 from utils.config import Config
 
 
-class CommonPage(BasePage):
+class CommonPage(UIBasePage):
     def __init__(self, page: Page):
         super().__init__(page)
         self.logger = logging.getLogger(self.__class__.__name__)

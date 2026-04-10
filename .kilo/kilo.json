@@ -4,17 +4,14 @@
   "permission": {
     "bash": "allow"
   },
-  "description": "Playwright Python BDD Test Automation Project",
-  "alwaysApply": true,
-  "commands": {
-    "test": "Run pytest tests",
-    "verify": "Verify environment setup",
-    "collect": "Collect test cases",
-    "debug": "Debug failing tests"
-  },
-  "agents": {
-    "test-planner": "Playwright test planning agent",
-    "test-healer": "Self-heal failing tests",
-    "test-generator": "Generate test cases"
+  "mcp": {
+    "playwright": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@playwright/mcp@0.0.38"
+      ]
+    }
   }
 }

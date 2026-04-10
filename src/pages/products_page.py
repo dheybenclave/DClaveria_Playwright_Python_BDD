@@ -3,10 +3,10 @@ from typing import List
 
 from playwright.sync_api import Page, Locator
 
-from src.pages.base_page import BasePage
+from src.pages.base_page import UIBasePage
 
 
-class ProductsPage(BasePage):
+class ProductsPage(UIBasePage):
     def __init__(self, page: Page):
         super().__init__(page)
         self.logger = logging.getLogger(self.__class__.__name__)

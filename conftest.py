@@ -10,8 +10,8 @@ import pytest
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 
-from src.pages.api.base_api import BaseApi
-from src.pages.base_page import BasePage
+from src.pages.api.base_api import ApiBasePage
+from src.pages.base_page import UIBasePage
 
 load_dotenv()
 
@@ -99,8 +99,8 @@ def playwright_page(request):
 def pages(playwright_page):
     class UnifiedPages:
         def __init__(self, page):
-            self.ui = BasePage(page)
-            self.api = BaseApi(page.request)
+            self.ui = UIBasePage(page)
+            self.api = ApiBasePage(page.request)
             # Keep a shared logger surface for legacy step definitions.
             self.logger = self.ui.logger
 
@@ -108,7 +108,7 @@ def pages(playwright_page):
 
 
 def pytest_configure(config):
-    # Path to the step_definitions folder
+    # Always import step definitions for BDD steps
     project_root = Path(__file__).parent
     steps_dir = project_root / "tests" / "step_definitions"
 
@@ -125,6 +125,14 @@ def pytest_configure(config):
 
         config.pluginmanager.import_plugin(module_path)
 
+    # Check if allure should be enabled
+    if os.environ.get("AUTO_GENERATE_ALLURE", "false").lower() != "true":
+        # Clear allure-related options to prevent the plugin from auto-generating
+        config.option.allure_dir = None
+        config.option.allure_report_dir = None
+        # Skip the rest of the function (report generation)
+        return
+    
     # For Reporting
     report_dir = Path(config.rootpath) / "test-results" / "reports"
     report_dir.mkdir(parents=True, exist_ok=True)
@@ -154,7 +162,7 @@ def pytest_sessionfinish(session, exitstatus):
     if hasattr(session.config, "workerinput"):
         return
 
-    auto_allure = os.environ.get("AUTO_GENERATE_ALLURE", "true").lower() == "true"
+    auto_allure = os.environ.get("AUTO_GENERATE_ALLURE", "false").lower() == "true"
     if not auto_allure:
         return
 

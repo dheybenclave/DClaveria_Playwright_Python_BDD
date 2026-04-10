@@ -8,8 +8,13 @@ from pytest_bdd import when, then, parsers
 def send_request(pages, method, endpoint):
     endpoint_key = endpoint.strip().lower()
     if endpoint_key == "/api/productslist":
-        api_client = pages.api.get_all_product_list
-        response_call = api_client.get_all_products
+        api_client = pages.api.all_products
+        if method.upper() == "GET":
+            response_call = api_client.get_all_products
+        elif method.upper() == "POST":
+            response_call = pages.api.post_to_all_products_list.post_to_products_list
+        else:
+            raise AssertionError(f"Unsupported method '{method}' for endpoint '{endpoint}'")
     elif endpoint_key == "/api/brandslist":
         api_client = pages.api.get_all_brands_list
         response_call = api_client.get_all_brands
@@ -21,21 +26,32 @@ def send_request(pages, method, endpoint):
     duration_ms = round((time.perf_counter() - start_time) * 1000)
     response_json = response.json()
 
-    return {
+    # Store in global context
+    from src.context import test_context
+    test_context.last_response = {
         "response": response,
         "json": response_json,
-        "duration": duration_ms
+        "duration": duration_ms,
+        "endpoint": endpoint,
+        "method": method
     }
+
+    return test_context.last_response
 
 
 @then(parsers.parse('the API response status code should be {status:d}'))
 def verify_status(pages, api_response_data, status):
     response_json = api_response_data["json"]
+    response = api_response_data["response"]
     if "products" in response_json:
-        pages.api.get_all_product_list.verify_response_status_code(api_response_data["response"], status)
+        pages.api.all_products.verify_response_status_code(response, status)
         return
     if "brands" in response_json:
-        pages.api.get_all_brands_list.verify_response_status_code(api_response_data["response"], status)
+        pages.api.get_all_brands_list.verify_response_status_code(response, status)
+        return
+    if "message" in response_json:
+        response_code = response_json.get("responseCode", response.status)
+        assert response_code == status, f"Expected responseCode {status}, but got {response_code}"
         return
     raise AssertionError("Unknown response payload; cannot verify status.")
 
@@ -57,7 +73,7 @@ def verify_product_schema_from_table(datatable, pages, api_response_data):
     pages.logger.debug(f"Validating Schema | Required Keys: {required_keys}")
 
     # Call the validation method in your API page object
-    pages.api.get_all_product_list.validate_product_structure(
+    pages.api.all_products.validate_product_structure(
         api_response_data["json"],
         required_keys
     )
@@ -68,7 +84,7 @@ def verify_performance(pages, api_response_data, limit):
     get_duration = api_response_data["duration"]
     response_json = api_response_data["json"]
     if "products" in response_json:
-        pages.api.get_all_product_list.verify_performance_of_response(get_duration, limit)
+        pages.api.all_products.verify_performance_of_response(get_duration, limit)
         return
     if "brands" in response_json:
         pages.api.get_all_brands_list.verify_performance_of_response(get_duration, limit)

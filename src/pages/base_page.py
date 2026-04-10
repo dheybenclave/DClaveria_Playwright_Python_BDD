@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from src.pages.payment_page import PaymentPage
 
 
-class BasePage:
+class UIBasePage:
     def __init__(self, page: Page):
         self.page = page
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -36,7 +36,7 @@ class BasePage:
         from src.pages.login_page import LoginPage
         return LoginPage(self.page)
 
-    @cached_property
+    @property
     def sign_up_page(self) -> "SignUpPage":
         from src.pages.sign_up_page import SignUpPage
         return SignUpPage(self.page)

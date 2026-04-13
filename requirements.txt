@@ -8,3 +8,7 @@ python-dotenv               # Secret management
 allure-pytest               # Professional Reporting
 requests                    # For secondary api_suites handling
 pytest-splinter
+
+# MCP Server Dependencies
+mcp>=1.27.0                 # Model Context Protocol SDK
+fastmcp>=3.2.3              # FastMCP framework for AI tools

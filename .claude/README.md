@@ -23,4 +23,4 @@ Playwright BDD automation framework.
 - JavaScript/Node-specific hook runtime from the source project was intentionally not copied,
   because this repository is Python-first and does not include the source hook dependency chain.
 - Rules were rewritten for `pytest`, `pytest-bdd`, and Playwright page-object workflows.
-- CI/CD integration is maintained in `.github/workflows/agentic-qa.yml` and `Jenkinsfile`.
+- CI/CD integration is maintained in `.github/workflows/main.yml`, `.github/workflows/agentic-qa.yml` and `Jenkinsfile`.

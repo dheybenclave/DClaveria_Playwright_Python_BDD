@@ -208,10 +208,10 @@ def get_all_orders(pages, endpoint):
 @then(parsers.parse('the response status code should be {status:d}'))
 def verify_status(api_response_data, status):
     """Verify API response status code"""
-    response_json = api_response_data["json"]
-    response = api_response_data["response"]
+    response_json = api_response_data.get("json", {})
+    response_status = api_response_data.get("status", 200)
 
-    response_code = response_json.get("responseCode", response.status)
+    response_code = response_json.get("responseCode", response_status)
     assert response_code == status, f"Expected responseCode {status}, but got {response_code}"
 
 

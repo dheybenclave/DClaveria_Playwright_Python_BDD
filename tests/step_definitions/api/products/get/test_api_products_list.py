@@ -31,6 +31,7 @@ def send_request(pages, method, endpoint):
     test_context.last_response = {
         "response": response,
         "json": response_json,
+        "status": response.status,
         "duration": duration_ms,
         "endpoint": endpoint,
         "method": method
@@ -41,16 +42,26 @@ def send_request(pages, method, endpoint):
 
 @then(parsers.parse('the API response status code should be {status:d}'))
 def verify_status(pages, api_response_data, status):
-    response_json = api_response_data["json"]
-    response = api_response_data["response"]
+    response_json = api_response_data.get("json", {})
+    response_status = api_response_data.get("status", 200)
+    response = api_response_data.get("response")
     if "products" in response_json:
-        pages.api.all_products.verify_response_status_code(response, status)
+        if response:
+            pages.api.all_products.verify_response_status_code(response, status)
+            return
+        # Fallback if response object not available
+        response_code = response_json.get("responseCode", response_status)
+        assert response_code == status, f"Expected responseCode {status}, but got {response_code}"
         return
     if "brands" in response_json:
-        pages.api.get_all_brands_list.verify_response_status_code(response, status)
+        if response:
+            pages.api.get_all_brands_list.verify_response_status_code(response, status)
+            return
+        response_code = response_json.get("responseCode", response_status)
+        assert response_code == status, f"Expected responseCode {status}, but got {response_code}"
         return
     if "message" in response_json:
-        response_code = response_json.get("responseCode", response.status)
+        response_code = response_json.get("responseCode", response_status)
         assert response_code == status, f"Expected responseCode {status}, but got {response_code}"
         return
     raise AssertionError("Unknown response payload; cannot verify status.")

@@ -3,7 +3,7 @@
 
 Feature: User Login Validation
 
-  @e2e @login
+  @login @regression
   Scenario Outline: Login with credentials
     Given I navigate to <page>
     When I enter credentials using the <user_role> role

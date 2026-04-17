@@ -132,3 +132,17 @@ Expected output shape:
 This project uses a curated migration from Everything Claude Code for Python
 Playwright QA workflows. JavaScript/Node-heavy parts from the source repo were
 not copied blindly to avoid runtime conflicts in this Python framework.
+
+---
+
+## Reference
+
+- **Unified AGENTS.md**: See [AGENTS.md](./AGENTS.md) for all platform guidelines
+
+### Code Style & Rules (All Platforms)
+
+| Platform | Code Style | Testing Rules | Security |
+|----------|------------|---------------|----------|
+| **Kilo** | [`.kilo/rules/python-coding-style.md`](.kilo/rules/python-coding-style.md) | [`.kilo/rules/common-testing.md`](.kilo/rules/common-testing.md) | [`.kilo/rules/python-security.md`](.kilo/rules/python-security.md) |
+| **Claude** | [`.claude/rules/*.md`](.claude/rules/test-automation-guardrails.md) | - | - |
+| **Cursor** | [`.cursor/rules/python-coding-style.md`](.cursor/rules/python-coding-style.md) | [`.cursor/rules/common-testing.md`](.cursor/rules/common-testing.md) | [`.cursor/rules/python-security.md`](.cursor/rules/python-security.md) |

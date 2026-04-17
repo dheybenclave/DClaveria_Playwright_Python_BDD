@@ -33,6 +33,12 @@ class LoginPage(UIBasePage):
     def btn_continue(self) -> Locator:
         return self.page.locator("a[data-qa='continue-button']")
 
+    def navigate_to_login_page(self) -> "LoginPage":
+        """Navigate to the login page"""
+        self.logger.info("Navigating to login page")
+        self.page.goto(f"{Config.BASE_URL}/login", wait_until="domcontentloaded")
+        return self
+
     def get_credentials_by_role(self, role: str):
         file_path = "tests/test_datas/excel_file/user_credentials.csv"
 
@@ -99,4 +105,16 @@ class LoginPage(UIBasePage):
 
         self.common_page.enter_text(self.txt_username, context.get_strict("email"))
         self.common_page.enter_text(self.txt_password, context.get_strict("password"))
+        self.btn_login.click()
+
+    def enter_login_username(self, username: str) -> None:
+        """Enter username in login form"""
+        self.common_page.enter_text(self.txt_username, username)
+
+    def enter_login_password(self, password: str) -> None:
+        """Enter password in login form"""
+        self.common_page.enter_text(self.txt_password, password)
+
+    def click_login_button(self) -> None:
+        """Click login button"""
         self.btn_login.click()

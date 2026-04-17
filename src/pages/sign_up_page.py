@@ -4,12 +4,15 @@ from playwright.sync_api import Locator, Page, expect
 
 from src.pages.base_page import UIBasePage
 from utils.test_state import context
+from utils.config import Config
 
 
 class SignUpPage(UIBasePage):
     def __init__(self, page: Page):
         super().__init__(page)
         self.logger = logging.getLogger(self.__class__.__name__)
+
+
 
     @property
     def txt_sign_up_name(self) -> Locator:
@@ -30,9 +33,30 @@ class SignUpPage(UIBasePage):
     def opt_btn_title(self, text) -> Locator:
         return self.page.locator(f"[value='{text}']")
 
+
     @property
     def btn_create_account(self) -> Locator:
         return self.page.locator("button[data-qa='create-account']")
+
+    def navigate_to_signup_page(self) -> "SignUpPage":
+        """Navigate to the signup page"""
+        self.logger.info("Navigating to signup page")
+        self.page.goto(f"{Config.BASE_URL}/login", wait_until="domcontentloaded")
+        # Wait for signup form to be visible
+        self.page.wait_for_selector("[data-qa='signup-name']", timeout=10000)
+        return self
+        
+    def enter_signup_name(self, name: str) -> None:
+        """Enter name in signup form"""
+        self.common_page.enter_text(self.txt_sign_up_name, name)
+
+    def enter_signup_email(self, email: str) -> None:
+        """Enter email in signup form"""
+        self.common_page.enter_text(self.txt_sign_up_email, email)
+
+    def click_signup_button(self) -> None:
+        """Click signup button"""
+        self.btn_sign_up.click()
 
     def create_new_user_by_sign_up(self, user_id: str):
         test_data = self.utils.get_json_data("register_user_data.json", user_id)

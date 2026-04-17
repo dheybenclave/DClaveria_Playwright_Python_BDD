@@ -98,3 +98,17 @@ These pipelines execute init checks and targeted marker runs.
 | `tests/step_definitions` | Step implementations |
 | `src/pages` | Page object models |
 | `test-results` | Test artifacts |
+
+---
+
+## Reference
+
+- **Unified AGENTS.md**: See [AGENTS.md](./AGENTS.md) for all platform guidelines
+
+### Code Style & Rules (All Platforms)
+
+| Platform | Code Style | Testing Rules | Security |
+|----------|------------|---------------|----------|
+| **Kilo** | [`.kilo/rules/python-coding-style.md`](.kilo/rules/python-coding-style.md) | [`.kilo/rules/common-testing.md`](.kilo/rules/common-testing.md) | [`.kilo/rules/python-security.md`](.kilo/rules/python-security.md) |
+| **Claude** | - | [`.claude/rules/test-automation-guardrails.md`](.claude/rules/test-automation-guardrails.md) | - |
+| **Cursor** | [`.cursor/rules/python-coding-style.md`](.cursor/rules/python-coding-style.md) | [`.cursor/rules/common-testing.md`](.cursor/rules/common-testing.md) | [`.cursor/rules/python-security.md`](.cursor/rules/python-security.md) |

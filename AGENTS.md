@@ -31,17 +31,17 @@ This document provides commands and code style guidelines for AI coding agents o
 pytest                           # Run all tests
 pytest --collect-only            # Verify test discovery (always run before committing)
 pytest -m "TC6"                  # Run single test by marker
-pytest -m "TC6 or TC7"          # Run multiple markers
+pytest -m "TC6 or TC7"           # Run multiple markers
 pytest -m api                    # Run API tests
 pytest -k "login"                # Run tests matching keyword
 pytest -n auto                   # Run tests in parallel
-HEADLESS=false pytest -m TC6    # Run with visible browser
+HEADLESS=false pytest -m TC6     # Run with visible browser
 
 # Linting & Formatting
-python -m flake8 src/ tests/     # Run flake8 linter
-python -m mypy src/             # Type checking with mypy
-python -m black --check .       # Check formatting
-python -m isort --check .       # Check import order
+python -m flake8 src/ tests/      # Run flake8 linter
+python -m mypy src/              # Type checking with mypy
+python -m black --check .        # Check formatting
+python -m isort --check .        # Check import order
 ```
 
 ### Running a Single Test
@@ -55,13 +55,19 @@ pytest -k "login success"
 
 # By feature file
 pytest tests/features/regression_suites/validate_verify_login.feature
+
+# With video recording for debugging
+HEADLESS=false pytest -m TC6 -v
 ```
 
-### Environment Variables
+---
+
+## Environment Variables
 
 - `BASE_URL` — Target site (default: https://automationexercise.com)
 - `HEADLESS` — Browser mode (default: true)
 - `RECORD_VIDEO` — Capture video on test (default: false)
+- `ADMIN_EMAIL`, `ADMIN_PASSWORD` — Admin credentials
 
 ---
 
@@ -69,7 +75,7 @@ pytest tests/features/regression_suites/validate_verify_login.feature
 
 ### Imports
 
-Use absolute imports, group in order: standard library, third-party, local.
+Use absolute imports, grouped in order: standard library, third-party, local.
 
 ```python
 # Standard library
@@ -171,6 +177,16 @@ def verify_dashboard(pages):
 - Never hardcode credentials, tokens, or API keys
 - Load secrets from `.env` or environment variables
 - Mask credentials in logs: `f"{username[:3]}***@{domain}"`
+- Validate external input before using it in assertions or URL construction
+
+---
+
+## Design Principles
+
+- **Thin steps, rich pages**: Step definitions delegate to page objects
+- **Data-driven BDD**: Tables in feature files flow into verifications
+- **Marker-driven execution**: Use `@TC#`, `@ui`, `@api`, `@regression` tags
+- **Centralized timeouts**: Default 15-second timeout in `conftest.py`
 
 ---
 
@@ -183,9 +199,12 @@ def verify_dashboard(pages):
 
 ---
 
-## Design Principles
+## Cursor Rules Integration
 
-- **Thin steps, rich pages**: Step definitions delegate to page objects
-- **Data-driven BDD**: Tables in feature files flow into verifications
-- **Marker-driven execution**: Use `@TC#`, `@ui`, `@api`, `@regression` tags
-- **Centralized timeouts**: Default 15-second timeout in `conftest.py`
+This project includes Cursor-specific rules in `.cursor/rules/`:
+
+- `python-coding-style.md` - Python coding style (PEP 8, type hints, readability)
+- `python-testing.md` - pytest and pytest-bdd guidance
+- `python-security.md` - Security best practices
+- `common-testing.md` - Testing requirements and stability rules
+- `playwright-python-framework.md` - Framework workflow conventions

@@ -79,3 +79,118 @@ tests/step_definitions/
 └── ui/
     └── (UI step definitions)
 ```
+
+---
+
+## Session: 2026-04-14
+
+### Commands & Prompts Executed
+
+| # | Command/Prompt | Purpose | Result |
+|---|----------------|---------|--------|
+| 1 | `pytest -m api` | Run API tests | 10 passed, 11 failed |
+| 2 | Read API docs `automationexercise.com/api_list` | Verify endpoints | Found correct endpoints |
+| 3 | Fixed feature file endpoints | Change loginUser→verifyLogin, 200→201 | Fixed TC101 |
+| 4 | Fixed TestDataManager field mapping | Include all fields even empty | Fixed birth_day mapping |
+| 5 | Fixed API page objects | Changed data= → form= | Fixed create/update/delete |
+
+### Key Learnings
+
+#### 1. Playwright `data=` vs `form=` - CRITICAL
+- **Problem**: API tests returning 400 errors
+- **Root Cause**: Playwright's `APIRequestContext.post(data=...)` sends JSON-encoded body, but the API expects form-encoded data (`application/x-www-form-urlencoded`)
+- **Fix**: Use `form=data` instead of `data=data` in API requests
+- **Files Fixed**:
+  - `src/pages/api/user/create_account.py`
+  - `src/pages/api/user/update_account.py`
+  - `src/pages/api/user/delete_account.py`
+  - `src/pages/api/order/create_order.py`
+
+#### 2. API Documentation Verification
+- **Reference**: https://automationexercise.com/api_list
+- **Verified Endpoints**:
+  - `/api/createAccount` → returns responseCode 201 (not 200)
+  - `/api/verifyLogin` → correct endpoint (not `/api/loginUser`)
+  - `/api/deleteAccount` → requires DELETE method (not POST)
+- **Required Fields**: Many fields required (firstname, address1, etc.)
+
+#### 3. TestDataManager Field Mapping Bug
+- **Problem**: API rejecting requests with 400 errors
+- **Root Cause**: Field mapping filtered out empty values, but API requires all fields
+- **Fix**: Include all fields even if empty string
+
+### Commands to Remember
+
+```bash
+# Run API tests only
+pytest -m api -v
+
+# Verify endpoint with curl (for debugging)
+curl -X POST https://automationexercise.com/api/createAccount \
+  -d "name=test&email=test@example.com&password=test123"
+
+# Debug API request - check form vs data encoding
+# Use form= for form-encoded, data= for JSON
+request_context.post(url, form=data)  # For form-encoded
+request_context.post(url, data=json)   # For JSON
+```
+
+### Files Modified This Session
+
+```
+AGENTS.md                                    # Updated (220 lines)
+tests/features/api_suites/
+│   └── validate_verify_user_api.feature       # Fixed endpoints
+utils/
+│   └── api_helpers.py                     # Fixed field mapping
+src/pages/api/user/
+│   ├── create_account.py                  # Changed data=→form=
+│   ├── update_account.py                  # Changed data=→form=
+│   └── delete_account.py                  # Changed data=→form=
+src/pages/api/order/
+│   └── create_order.py                    # Changed data=→form=
+```
+
+### Remaining Issues
+
+- ~~User API tests (TC101, TC103-TC105, TC109, TC110)~~ - FIXED
+- ~~Order API tests (TC201-TC205)~~ - SKIPPED (endpoints don't exist in API docs)
+
+---
+
+## Session: 2026-04-14 (Continued)
+
+### New Issues Fixed
+
+#### 4. Test Data - Duplicate Email Problem
+- **Problem**: Test users all had same email causing "Email already exists" errors
+- **Fix**: Added unique email suffix using UUID to each test user
+- **File**: `tests/test_datas/json/register_user_data.json`
+
+#### 5. Missing Step Definition for "success message"
+- **Problem**: TC103 failed with "Step definition not found" for "the response should contain a success message"
+- **Fix**: Added `verify_login_success_message` step definition in `tests/step_definitions/api/user/test_user_api.py`
+
+#### 6. DELETE Method Routing
+- **Problem**: Feature file used DELETE method but step definition was catching POST
+- **Fix**: Added explicit DELETE handler `delete_account_with_delete_method` and modified generic handler to route DELETE to it
+
+#### 7. Order API Endpoints Don't Exist
+- **Problem**: TC201-TC205 use endpoints `/api/createOrder`, `/api/getOrderByOrderId`, `/api/getOrders` which don't exist
+- **Fix**: Added `@skip` tag to feature file to disable these tests
+
+### Final Results
+
+```
+================ 16 passed, 5 skipped, 28 deselected ================
+```
+
+### Files Modified (Continued)
+
+```
+tests/test_datas/json/register_user_data.json     # Unique emails
+tests/step_definitions/api/user/test_user_api.py  # Added steps, fixed routing
+tests/features/api_suites/
+  ├── validate_verify_order_api.feature           # @skip order tests
+  └── validate_verify_user_api.feature            # Already fixed
+```

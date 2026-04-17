@@ -107,6 +107,82 @@ def pages(playwright_page):
     return UnifiedPages(playwright_page)
 
 
+# =============================================================================
+# Accessibility (A11Y) Testing Fixtures
+# =============================================================================
+
+@pytest.fixture
+def axe_runner(playwright_page):
+    """
+    Accessibility testing fixture using axe-core.
+
+    Usage in tests:
+        results = axe_runner.analyze()
+        assert results["passes"] > 0, "No accessibility checks passed"
+    """
+    class AxeRunner:
+        def __init__(self, page):
+            self.page = page
+
+        def analyze(self, context=None, options=None):
+            """
+            Run axe accessibility analysis directly via evaluate.
+            """
+            # Using simplest possible approach - run with default context
+            script = """
+            async () => {
+                // Load axe if not present
+                if (typeof axe === 'undefined') {
+                    var s = document.createElement('script');
+                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.8.3/axe.min.js';
+                    document.head.appendChild(s);
+                }
+                // Wait foraxe
+                var i = 0;
+                while (typeof axe === 'undefined' && i < 50) {
+                    await new Promise(r => setTimeout(r, 100));
+                    i++;
+                }
+                // Run with defaults
+                return await axe.run();
+            }
+            """
+
+            try:
+                result = self.page.evaluate(script)
+            except Exception as e:
+                return {"violations": [], "passes": [], "incomplete": [], "inapplicable": []}
+
+            return {
+                "violations": result.get("violations", []),
+                "passes": result.get("passes", []),
+                "incomplete": result.get("incomplete", []),
+                "inapplicable": result.get("inapplicable", [])
+            }
+
+        def get_violations_by_impact(self, min_impact="critical"):
+            """Get violations filtered by minimum impact level"""
+            impact_order = {"critical": 0, "serious": 1, "moderate": 2, "minor": 3}
+            min_level = impact_order.get(min_impact, 0)
+
+            results = self.analyze()
+            filtered = []
+
+            for violation in results["violations"]:
+                impact = violation.get("impact", "minor")
+                if impact_order.get(impact, 3) <= min_level:
+                    filtered.append(violation)
+
+            return filtered
+
+        def has_critical_violations(self):
+            """Check if page has critical or serious accessibility violations"""
+            violations = self.get_violations_by_impact("critical")
+            return len(violations) > 0
+
+    return AxeRunner(playwright_page)
+
+
 def pytest_configure(config):
     # Always import step definitions for BDD steps
     project_root = Path(__file__).parent

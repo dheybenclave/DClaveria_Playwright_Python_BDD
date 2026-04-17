@@ -22,6 +22,18 @@ class CommonPage(UIBasePage):
     def _get_locator(self, locator: str | Locator) -> Locator:
         return self.page.locator(locator) if isinstance(locator, str) else locator
 
+    def navigate_to_home_page(self) -> "CommonPage":
+        """Navigate to the home page"""
+        self.logger.info("Navigating to home page")
+        self.page.goto(Config.BASE_URL, wait_until="domcontentloaded")
+        return self
+
+    def navigate_to_contact_us_page(self) -> "CommonPage":
+        """Navigate to the contact us page"""
+        self.logger.info("Navigating to contact us page")
+        self.page.goto(f"{Config.BASE_URL}/contact_us", wait_until="domcontentloaded")
+        return self
+        
     def open_browser(self, target: str = ""):
         self.logger.info(f"Opening Browser {target}")
         url = f"{Config.BASE_URL}{target}" if target else Config.BASE_URL
@@ -112,3 +124,26 @@ class CommonPage(UIBasePage):
         file_path = Path(__file__).resolve().parents[2] / "test_datas" / f"{file_name}.{file_type}"
         self._get_locator(locator).set_input_files(str(file_path))
         self.verify_element_value(locator, file_name)
+
+    def get_page_content(self) -> str:
+        """Get the page content/body text"""
+        self.logger.info("Getting page content")
+        return self.page.locator("body").inner_text()
+
+    def wait_for_page_load(self) -> "CommonPage":
+        """Wait for page to fully load"""
+        self.logger.info("Waiting for page load")
+        self.page.wait_for_load_state("networkidle", timeout=15000)
+        return self
+
+    def navigate_to_account_settings(self) -> "CommonPage":
+        """Navigate to account settings page"""
+        self.logger.info("Navigating to account settings")
+        self.page.goto(f"{Config.BASE_URL}/settings", wait_until="domcontentloaded")
+        return self
+
+    def enter_contact_name(self, name: str) -> "CommonPage":
+        """Enter name in contact form"""
+        self.logger.info(f"Entering contact name: {name}")
+        self.enter_text(self.page.locator("[data-qa='contact-name']"), name)
+        return self

@@ -1,6 +1,6 @@
 Feature: End to End Testing of a new user that can place an order from start to beginning
 
-  @e2e @TC6
+  @e2e @TC6 
   Scenario Outline: Validate and Verify newly created user to place an order with specific order
     Given I navigate to <page>
     When I create a new user using the <user_data_id>

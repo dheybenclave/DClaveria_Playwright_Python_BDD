@@ -27,7 +27,7 @@ def send_request(pages, method, endpoint):
     response_json = response.json()
 
     # Store in global context
-    from src.context import test_context
+    from utils.test_state import test_context
     test_context.last_response = {
         "response": response,
         "json": response_json,

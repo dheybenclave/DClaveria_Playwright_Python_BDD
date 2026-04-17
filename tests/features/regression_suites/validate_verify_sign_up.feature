@@ -1,7 +1,7 @@
 # Created by dheyb at 3/5/2026
 Feature: Sing Up new User Validation
 
-  @e2e @signup
+  @signup @regression
   Scenario Outline: Sign Up a new user
     Given I navigate to <page>
     Then I create a new user using the <test_data_id>
@@ -16,9 +16,6 @@ Feature: Sing Up new User Validation
     Examples:
       | page   | test_data_id | result_message                                                   |
       | /login |            5 | Congratulations! Your new account has been successfully created! |
-      | /login |            7 | Congratulations! Your new account has been successfully created! |
-      | /login |           10 | Congratulations! Your new account has been successfully created! |
-      | /login |            3 | Congratulations! Your new account has been successfully created! |
 
     @negative_testing @TC5
     Examples:

@@ -4,6 +4,7 @@ from typing import List
 from playwright.sync_api import Page, Locator
 
 from src.pages.base_page import UIBasePage
+from utils.config import Config
 
 
 class ProductsPage(UIBasePage):
@@ -21,6 +22,12 @@ class ProductsPage(UIBasePage):
 
     def btn_add_to_cart_by_index(self, product_index=1) -> Locator:
         return self.page.locator("div.productinfo a.add-to-cart").nth(int(product_index) - 1)
+
+    def navigate_to_products_page(self) -> "ProductsPage":
+        """Navigate to the products page"""
+        self.logger.info("Navigating to products page")
+        self.page.goto(f"{Config.BASE_URL}/products", wait_until="domcontentloaded")
+        return self
 
     def nav_category(self, category: str, sub_category=None) -> Locator:
 
@@ -70,3 +77,18 @@ class ProductsPage(UIBasePage):
         self.common_page.verify_text_visible("Your product has been added to cart.")
         self.common_page.click_element_by_text("Continue Shopping")
         self.page.wait_for_load_state("domcontentloaded")
+
+    def click_first_product(self) -> "ProductsPage":
+        """Click on the first product in the list"""
+        self.logger.info("Clicking first product")
+        self.page.locator("div.productinfo p").first.click()
+        self.page.wait_for_load_state("domcontentloaded")
+        return self
+
+    def search_products(self, query: str) -> "ProductsPage":
+        """Search for products"""
+        self.logger.info(f"Searching for products: {query}")
+        self.page.locator("#search_product").fill(query)
+        self.page.locator("#submit_search").click()
+        self.page.wait_for_load_state("domcontentloaded")
+        return self

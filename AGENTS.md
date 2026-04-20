@@ -199,12 +199,13 @@ def verify_dashboard(pages):
 
 ---
 
-## Cursor Rules Integration
+## Rules Integration
 
-This project includes Cursor-specific rules in `.cursor/rules/`:
+This project includes Kilo-specific rules in `.kilo/rules/`:
 
 - `python-coding-style.md` - Python coding style (PEP 8, type hints, readability)
 - `python-testing.md` - pytest and pytest-bdd guidance
 - `python-security.md` - Security best practices
 - `common-testing.md` - Testing requirements and stability rules
 - `playwright-python-framework.md` - Framework workflow conventions
+- `test-automation-guardrails.md` - Test Automation Guardrails

@@ -6,6 +6,16 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Invoke-CheckedPython {
+    param(
+        [Parameter(Mandatory=$true)][string]$ScriptPath
+    )
+    & $PythonExe $ScriptPath
+    if ($LASTEXITCODE -ne 0) {
+        throw "Script failed: $ScriptPath (exit $LASTEXITCODE)"
+    }
+}
+
 Write-Host "[Agentic QA] Bootstrap starting..." -ForegroundColor Cyan
 
 Write-Host "[1/5] Python version"
@@ -30,13 +40,26 @@ else {
 }
 
 Write-Host "[4/5] Verify project environment"
-& $PythonExe .cursor/skills/init/scripts/verify_env.py
+# Use unified init scripts (canonical: .kilo; fallback: .cursor)
+if (Test-Path ".kilo/skills/init/scripts/verify_env.py") {
+    Invoke-CheckedPython ".kilo/skills/init/scripts/verify_env.py"
+} elseif (Test-Path ".cursor/skills/init/scripts/verify_env.py") {
+    Write-Host "[INFO] Using legacy .cursor init scripts" -ForegroundColor Yellow
+    Invoke-CheckedPython ".cursor/skills/init/scripts/verify_env.py"
+} else {
+    throw "Init scripts not found in .kilo or .cursor"
+}
 
 if ($RunSmokeCollect) {
     Write-Host "[5/5] Run smoke collection"
-    & $PythonExe .cursor/skills/init/scripts/smoke_collect.py
-}
-else {
+    if (Test-Path ".kilo/skills/init/scripts/smoke_collect.py") {
+        Invoke-CheckedPython ".kilo/skills/init/scripts/smoke_collect.py"
+    } elseif (Test-Path ".cursor/skills/init/scripts/smoke_collect.py") {
+        Invoke-CheckedPython ".cursor/skills/init/scripts/smoke_collect.py"
+    } else {
+        throw "Smoke collect script not found"
+    }
+} else {
     Write-Host "[5/5] Skipped smoke collect"
 }
 

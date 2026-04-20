@@ -1,386 +1,250 @@
-# Agentic AI Guide - Test Automation Framework
+# Agentic QA Guide — Unified Workflow
 
-Comprehensive guide for ALL AI agents (Kilo, Cursor, Claude, GitHub Agents) working with this Playwright Python BDD test automation project.
-
-## Table of Contents
-- [Overview](#overview)
-- [Project Structure](#project-structure)
-- [Environment Setup](#environment-setup)
-- [Test Execution](#test-execution)
-- [AI Agents](#ai-agents)
-- [FastMCP Server](#fastmcp-server)
-- [Framework Rules](#framework-rules)
-- [Hooks](#hooks)
-- [CI/CD](#cicd)
-- [Troubleshooting](#troubleshooting)
-
----
+This guide unifies Kilo, Cursor, and Claude AI agent workflows for the Playwright Python BDD framework.
 
 ## Overview
 
-This project uses multiple AI agent systems:
-- **Kilo CLI** (`.kilo/`) - Local AI agent commands and agents
-- **Cursor IDE** (`.cursor/`) - IDE with hooks and rules
-- **Claude CLI** (`.claude/`) - CLI-based AI commands
-- **GitHub Agents** (`.github/agents/`) - Cloud-based agents
-- **FastMCP Server** (`.kilo/mcp/`) - MCP protocol for AI test automation
+All three AI platforms share:
+- **Same rule set** (`.kilo/rules/`, `.cursor/rules/`, `.claude/rules/`)
+- **Same test structure** (`tests/features/`, `src/pages/`, `utils/`)
+- **Same execution model** (pytest + pytest-bdd, marker-driven)
 
 ---
 
-## Project Structure
-
-```
-.
-├── AGENTS.md                    # Agent coding guidelines (root)
-├── AGENTIC_GUIDE.md            # This file - unified guide
-├── pytest.ini                   # Pytest configuration
-├── conftest.py                  # Pytest fixtures
-├── .env                         # Environment variables
-│
-├── .kilo/                       # Kilo CLI Agents
-│   ├── agent/                   # Agent definitions
-│   ├── command/                 # Slash commands
-│   ├── mcp/                     # FastMCP Server
-│   ├── hooks/                  # Session hooks
-│   ├── rules/                   # AI coding rules
-│   └── AGENTS.md               # Kilo-specific config
-│
-├── .cursor/                     # Cursor IDE
-│   ├── hooks/                  # Cursor hooks
-│   ├── rules/                  # Cursor rules
-│   └── skills/                  # Skills/init scripts
-│
-├── .claude/                     # Claude CLI
-│   ├── hooks/                  # Claude hooks
-│   └── commands/               # Claude commands
-│
-├── .github/                     # GitHub
-│   ├── agents/                 # GitHub Agents
-│   └── workflows/              # CI/CD pipelines
-│
-├── tests/
-│   ├── features/               # BDD .feature files
-│   └── step_definitions/       # Step implementations
-│
-├── src/pages/                  # Page Object Models
-└── utils/                      # Utility functions
-```
-
----
-
-## Environment Setup
-
-### Quick Setup
+## Quick Start
 
 ```powershell
-# Install dependencies
+# 1. Setup
+python -m venv .venv
+.venv\Scripts\activate
 pip install -r requirements.txt
-
-# Install Playwright browsers
 python -m playwright install --with-deps
 
-# Verify environment (ALWAYS run first)
+# 2. Verify environment (all platforms)
 python .cursor/skills/init/scripts/verify_env.py
 
-# Collect tests
-python .cursor/skills/init/scripts/smoke_collect.py
-```
+# 3. Collect tests (always before commit)
+pytest --collect-only
 
-### Environment Variables
-
-**Required** (in `.env` or CI secrets):
-- `BASE_URL` - Target test URL (e.g., https://automationexercise.com)
-- `HEADLESS` - true/false for headless mode
-
-**Optional**:
-- `RECORD_VIDEO` - Record test videos
-- `ADMIN_EMAIL` / `ADMIN_PASSWORD` - Admin credentials
-- `LIST_OF_CREDENTIALS` - Test credentials (from GitHub secrets)
-
----
-
-## Test Execution
-
-### Basic Commands
-
-```bash
-# Run all tests
-pytest
-
-# Run specific marker (preferred)
-pytest -m "TC6 or TC7"
-
-# Run by keyword
-pytest -k "login"
-
-# Collect tests only
-pytest --collect-only -q
-
-# Run with visible browser
-HEADLESS=false pytest -m TC6
-
-# Run parallel (CI)
-pytest -n auto --dist loadscope
-```
-
-### Via MCP Server
-
-```python
-import sys
-sys.path.insert(0, '.kilo/mcp')
-from server import run_tests_by_marker
-
-result = run_tests_by_marker('TC6')
-print(result['stdout'])
-```
-
-### Pytest Markers
-
-| Marker | Description |
-|--------|-------------|
-| `@TC1`, `@TC2`, etc. | Individual test case IDs |
-| `@smoke` | Smoke tests |
-| `@regression` | Full regression suite |
-| `@ui` | UI E2E tests |
-| `@api` | API tests |
-| `@login` | Login page tests |
-
----
-
-## AI Agents
-
-### Kilo Agents (`.kilo/agent/`)
-
-| Agent | File | Purpose |
-|-------|------|---------|
-| Test Planner | `test-planner.md` | Create comprehensive test plans |
-| Test Healer | `test-healer.md` | Self-heal failing tests |
-| Test Generator | `test-generator.md` | Generate test cases |
-
-**Usage**:
-```bash
-kilo "Use test-planner for checkout flow"
-kilo "Use test-healer to fix selector failures"
-kilo "Use test-generator to create login tests"
-```
-
-### GitHub Agents (`.github/agents/`)
-
-| Agent | File | Purpose |
-|-------|------|---------|
-| Playwright Test Planner | `playwright-test-planner.agent.md` | Create test plans via browser |
-| Playwright Test Healer | `playwright-test-healer.agent.md` | Fix failing tests |
-| Playwright Test Generator | `playwright-test-generator.agent.md` | Generate test cases |
-
-### Kilo Commands (`.kilo/command/`)
-
-| Command | Purpose |
-|---------|---------|
-| `/verify` | Environment verification |
-| `/collect` | Test collection |
-| `/test` | Run tests |
-| `/debug` | Test debugging |
-
----
-
-## FastMCP Server
-
-**Location**: `.kilo/mcp/`
-
-MCP (Model Context Protocol) server for AI test automation.
-
-### Available Tools
-
-| Tool | Description |
-|------|-------------|
-| `run_collect` | Collect all tests without running |
-| `run_by_marker` | Run tests by pytest marker |
-| `run_by_keyword` | Run tests matching keyword |
-| `list_markers` | List available pytest markers |
-| `list_features` | List all feature files |
-| `run_smoke` | Run smoke/regression tests |
-
-### Installation
-
-```bash
-pip install mcp fastmcp
+# 4. Run targeted tests
+pytest -m "TC6"
 ```
 
 ---
 
-## Framework Rules
+## Platform Cheatsheet
 
-### 1. NEVER Put Selectors in Step Definitions
+| Platform | Init/Verify | Config | Agents | Commands | Skills |
+|----------|------------|--------|--------|----------|--------|
+| **Kilo** | `.kilo/hooks/session_start.py` | `.kilo/kilo.json` | `.kilo/agent/` | `.kilo/command/` | `.kilo/skills/` |
+| **Cursor** | `.cursor/hooks/session_start.py` | `.cursor/hooks.json` | Shared | Shared | `.cursor/skills/` |
+| **Claude** | `.claude/hooks/session_start.py` | `.claude/settings.json` | `.claude/agents/` | `.claude/commands/` | — |
 
-**WRONG** ❌:
+---
+
+## Unified Rules (All Platforms)
+
+The 5 core rule files are synchronized across all platforms:
+
+1. **common-testing.md** — Validation sequence, DoD, stability rules
+2. **python-coding-style.md** — PEP 8, type hints, naming conventions
+3. **python-security.md** — Secrets management, logging safety
+4. **playwright-python-framework.md** — Workflow, paths, commands
+5. **test-automation-guardrails.md** — Selectors, waits, BDD discipline
+
+**Cursor additionally has**: `python-testing.md` (pytest-specific guidance)
+
+**Location priority**: Rules live in `.kilo/rules/` (canonical) and are copied to `.cursor/rules/` and `.claude/rules/`.
+
+---
+
+## Test Execution Matrix
+
+| Need | Command |
+|------|---------|
+| Run all tests | `pytest` |
+| Run specific test case | `pytest -m TC6` |
+| Run by tag (ui/api/regression) | `pytest -m ui` / `pytest -m api` |
+| Run by keyword | `pytest -k "login"` |
+| Parallel execution | `pytest -n auto` |
+| Visible browser (debug) | `HEADLESS=false pytest -m TC6 -v` |
+| With video | `RECORD_VIDEO=true pytest -m TC6` |
+| HTML report | `pytest --html=test-results/reports/report.html` |
+| Allure | `pytest --alluredir=allure-results` |
+| Verify discovery | `pytest --collect-only` |
+
+---
+
+## Core Guardrails (Non-Negotiable)
+
+1. **NO selectors in step definitions** — All selectors in page objects (`src/pages/`)
+2. **NO time.sleep()** — Use `expect(locator).to_be_visible()`, `page.wait_for_load_state()`
+3. **NO long step definitions** — Keep steps 1–3 lines; delegate to pages
+4. **NO hardcoded secrets** — Use `.env`, `Config` class
+5. **ALWAYS run `--collect-only` before commit**
+6. **ALWAYS tag scenarios with `@TC#` markers**
+7. **ALWAYS use semantic selectors** — `get_by_role()`, `get_by_label()`, `[data-qa]`
+8. **ALWAYS verify with targeted run then collection**
+
+---
+
+## Framework Rules Reference
+
+### Selector Strategy (Priority Order)
+
 ```python
-@when("user clicks login button")
-def step_impl(page):
-    page.click("#login-btn")
+# 1. Semantic (best)
+page.get_by_role("button", name="Add to cart")
+page.get_by_label("Email")
+page.get_by_placeholder("Search...")
+
+# 2. Data attributes (good)
+page.locator("[data-qa='login-btn']")
+page.locator("[data-testid='submit']")
+
+# 3. CSS (avoid if possible)
+page.locator(".btn.btn-primary")  # fragile
+page.locator("#submit")  # may change
 ```
 
-**CORRECT** ✅:
-```python
-# Step definition (thin)
-@when("user clicks login button")
-def step_impl(page):
-    page.login_page.click_login_button()
-
-# Page object (selectors here)
-class LoginPage:
-    def click_login_button(self):
-        self.page.get_by_role("button", name="Login").click()
-```
-
-### 2. ALWAYS Use Page Objects
-
-All selectors MUST be in `src/pages/`:
-- `src/pages/login_page.py`
-- `src/pages/products_page.py`
-- `src/pages/checkout_page.py`
-
-### 3. Use Semantic Selectors
+### Wait Strategy
 
 ```python
-# BEST - Semantic, accessible
-self.page.get_by_role("button", name="Submit")
-self.page.get_by_label("Email")
-self.page.get_by_placeholder("Enter email")
-
-# GOOD - Attribute-based
-self.page.locator("[data-testid='submit']")
-self.page.locator("[aria-label='Close']")
-
-# AVOID - Fragile selectors
-self.page.locator("#submit-button")
-self.page.locator("div.card:nth-child(2)")
-```
-
-### 4. Use Explicit Waits
-
-```python
-# WRONG ❌
-import time
+# ❌ NEVER
 time.sleep(2)
 
-# CORRECT ✅
-self.page.wait_for_load_state("networkidle")
-self.page.wait_for_selector(".product-list")
-self.page.get_by_text("Success").wait_for()
+# ✅ ALWAYS
+page.wait_for_load_state("networkidle")
+expect(locator).to_be_visible(timeout=10000)
+locator.wait_for(state="attached")
 ```
 
-### 5. Keep Step Definitions Thin
+### Page Object Pattern
 
-Step definitions should be 1-3 lines maximum.
+```python
+class LoginPage(UIBasePage):
+    @property
+    def txt_email(self) -> Locator:
+        return self.page.locator("[data-qa='login-email']")
 
-### 6. Use Descriptive Test Markers
+    def login(self, email: str, password: str) -> None:
+        self.common_page.enter_text(self.txt_email, email)
+        self.common_page.enter_text(self.txt_password, password)
+        self.btn_login.click()
+```
 
-```gherkin
-@TC6 @smoke
-Scenario: User can login with valid credentials
+### Step Definition Pattern
+
+```python
+@when(parsers.parse("I login with role {role}"))
+def step_impl(pages, role):
+    pages.ui.login_page.login_credentials_by_role(role)
+
+@then("I should see the dashboard")
+def step_impl(pages):
+    expect(pages.ui.home_page.btn_logout).to_be_visible()
 ```
 
 ---
 
-## Hooks
+## Debugging Workflow
 
-### Kilo Hooks (`.kilo/hooks/`)
-
-| Event | Script | Purpose |
-|-------|--------|---------|
-| sessionStart | `session_start.py` | Show startup checklist |
-| beforePromptSubmit | `before_prompt_submit.py` | Secret detection |
-| afterFileEdit | `after_file_edit.py` | Suggest verification |
-
-### Cursor Hooks (`.cursor/hooks/`)
-
-| Event | Script | Purpose |
-|-------|--------|---------|
-| beforeSubmitPrompt | `before_submit_prompt.py` | Secret detection |
-| sessionStart | `session_start.py` | Startup message |
-| afterFileEdit | `after_file_edit.py` | Post-edit suggestions |
-
-### Claude Hooks (`.claude/hooks/`)
-
-| Event | Script | Purpose |
-|-------|--------|---------|
-| pre_tool_use_bash | `pre_tool_use_bash.py` | Block dangerous commands |
+1. **Check collection**: `pytest --collect-only`
+2. **Run single test**: `pytest -m TC6 -v`
+3. **Visible browser**: `HEADLESS=false pytest -m TC6 -v --stepwise`
+4. **Check artifacts**: `test-results/screenshots/`, `test-results/videos/`
+5. **Use healer**: `kilo "Use test-healer to fix selector failures"`
+6. **Inspect page**: Use Playwright Inspector (`page.pause()`)
 
 ---
 
-## CI/CD
+## Reporting
 
-### GitHub Actions
+| Artifact | Location |
+|----------|----------|
+| HTML report | `test-results/reports/report.html` |
+| Screenshots | `test-results/screenshots/` (on failure) |
+| Videos | `test-results/videos/` (if `RECORD_VIDEO=true`) |
+| Allure raw | `allure-results/` |
+| Allure HTML | `allure-report/` (auto-generated) |
 
-**Main Workflow**: `.github/workflows/main.yml`
-
-**Triggers**:
-- Push to master
-- Pull requests
-- Manual dispatch
-
-**Manual Inputs**:
-- `run_parallel` - Run tests in parallel
-- `test_filter` - Specific marker
-- `record_video` - Record test videos
-
----
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Tests fail on CI | Run `verify_env.py` locally first |
-| Selector failures | Use semantic selectors, add fallbacks |
-| Import errors | Run `pip install -r requirements.txt` |
-| No tests collected | Check .feature file syntax |
-| Video not recording | Set `HEADLESS=false` |
-
-### Debug Commands
-
+Open Allure:
 ```bash
-# Verbose output
-pytest -v -m TC6
-
-# With browser visible
-HEADLESS=false pytest -m TC6
-
-# Single test
-pytest -k "test_name" -v
-
-# Collect only
-pytest --collect-only -q
+npx allure open allure-report
+npx allure serve allure-results
 ```
 
 ---
 
-## Quick Reference
+## Platform-Specific Notes
 
-```
-┌─────────────────────────────────────────┐
-│  TEST AUTOMATION QUICK REFERENCE        │
-├─────────────────────────────────────────┤
-│  VERIFY:  python verify_env.py         │
-│  COLLECT: pytest --collect-only -q      │
-│  RUN:     pytest -m "TC6"               │
-│  PARALLEL: pytest -n auto                │
-│  VIDEO:   HEADLESS=false pytest -m TC6  │
-├─────────────────────────────────────────┤
-│  RULES:                                  │
-│  ✗ NO selectors in step definitions     │
-│  ✓ ALL selectors in src/pages/          │
-│  ✓ Use semantic selectors              │
-│  ✓ Explicit waits (no time.sleep)      │
-│  ✓ Keep steps thin (1-3 lines)         │
-│  ✓ Tag scenarios with @TC markers      │
-└─────────────────────────────────────────┘
-```
+### Kilo
+- Uses FastMCP server (`.kilo/mcp/server.py`) for AI tool integration
+- Commands accessible via `kilo "<command>"` syntax
+- Hooks run automatically on session start/file edit
+
+### Cursor
+- MCP via `@playwright/mcp` in `.cursor/mcp.json`
+- Slash commands (e.g., `/feature-development`) via AGENTS.md
+- Skills in `.cursor/skills/` for init/bootstrap
+
+### Claude
+- MCP via `playwright-local` in `.claude/settings.json`
+- Commands via `.claude/commands/` (e.g., `feature-development`, `test-debugging`)
+- Agents in `.claude/agents/` (qa-test-automation-engineer, test-architect, etc.)
 
 ---
 
-## Related Documentation
+## Environment Variables
 
-- [AGENTS.md](./AGENTS.md) - AI agent coding guidelines
-- [.kilo/AGENTS.md](./.kilo/AGENTS.md) - Kilo-specific config
-- [.cursor/AGENTIC_QA_GUIDE.md](./.cursor/AGENTIC_QA_GUIDE.md) - Cursor-specific
-- [.claude/AGENTIC_QA_GUIDE.md](./.claude/AGENTIC_QA_GUIDE.md) - Claude-specific
+| Variable | Default | Required | Purpose |
+|----------|---------|----------|---------|
+| `BASE_URL` | https://automationexercise.com | Yes | Target site |
+| `HEADLESS` | true | No | Headless mode |
+| `RECORD_VIDEO` | false | No | Capture test videos |
+| `PLAYWRIGHT_DEFAULT_TIMEOUT` | 15000 | No | Global timeout (ms) |
+| `ADMIN_EMAIL` | — | No | Admin account |
+| `ADMIN_PASSWORD` | — | No | Admin password |
+| `LIST_OF_CREDENTIALS` | — | No | JSON test credentials |
+| `AUTO_GENERATE_ALLURE` | false | No | Auto-Allure HTML |
+
+---
+
+## Pytest Markers
+
+| Marker | Usage |
+|--------|-------|
+| `@TC1`–`@TC99` | Individual test case IDs |
+| `@ui` | UI/E2E tests |
+| `@api` | API CRUD tests |
+| `@regression` | Full regression suite |
+| `@login` | Login tests |
+| `@signup` | Sign-up tests |
+| `@products` | Products tests |
+| `@checkout` | Checkout flow |
+| `@payment` | Payment tests |
+| `@positive_testing` | Happy path |
+| `@negative_testing` | Error/edge cases |
+| `@security` | XSS, SQLi, auth tests |
+
+---
+
+## DoD (Definition of Done)
+
+- [x] Scenario(s) pass locally
+- [x] `pytest --collect-only` passes (no discovery errors)
+- [x] No `time.sleep()` or flaky waits introduced
+- [x] Report artifacts generated in `test-results/`
+- [x] Selectors placed in page objects (not steps)
+- [x] Markers/tags updated if needed
+- [x] No secrets committed; `.env` remains git-ignored
+
+---
+
+## Reference
+
+- **[AGENTS.md](./AGENTS.md)** — Unified coding guidelines (all platforms)
+- **[README.md](./README.md)** — Project overview, setup, execution
+- **Platform configs**: [CLAUDE.md](./CLAUDE.md) · [CURSOR.md](./CURSOR.md) · [KILO.md](./KILO.md)
+- **Rule set**: `.kilo/rules/` (canonical) → `.cursor/rules/` & `.claude/rules/` (mirrored)
+- **Agent guides**: `.claude/AGENTIC_QA_GUIDE.md` · `.cursor/AGENTIC_QA_GUIDE.md` · `.kilo/AGENTIC_QA_GUIDE.md`

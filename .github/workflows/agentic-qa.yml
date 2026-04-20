@@ -51,8 +51,8 @@ jobs:
 
       - name: Agentic init checks
         run: |
-          python .cursor/skills/init/scripts/verify_env.py
-          python .cursor/skills/init/scripts/smoke_collect.py
+          python .kilo/skills/init/scripts/verify_env.py
+          python .kilo/skills/init/scripts/smoke_collect.py
 
       - name: Run targeted regression marker
         if: ${{ inputs.run_targeted_tests != false }}

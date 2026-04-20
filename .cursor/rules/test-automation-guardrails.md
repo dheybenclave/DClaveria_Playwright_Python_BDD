@@ -1,3 +1,7 @@
+---
+description: "Core test automation guardrails: page objects, selectors, waits, and BDD discipline."
+alwaysApply: true
+---
 # Test Automation Guardrails
 
 ## Core Principles
@@ -68,12 +72,11 @@ class UIBasePage:
 - One action per step
 - Use scenario outlines (`Examples:`) for data-driven tests
 - Use descriptive scenario names (verb-first imperatives)
-- Use json for test data for each test cases
 
 ```gherkin
 @TC6 @positive_testing @login
 Scenario: User can login with valid credentials
-    Given the user is on the login page
+    Given the user is on the /login page
     When they enter valid credentials for role "standard_user"
     And they click the login button
     Then they should be redirected to the dashboard

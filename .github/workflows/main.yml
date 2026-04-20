@@ -53,7 +53,7 @@ jobs:
         run: playwright install --with-deps
 
       - name: Verify Environment
-        run: python .cursor/skills/init/scripts/verify_env.py
+        run: python .kilo/skills/init/scripts/verify_env.py
 
       - name: Run Pytest
         env:

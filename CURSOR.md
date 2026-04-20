@@ -62,12 +62,12 @@ All rules are synced with Claude and Kilo:
 
 | Rule | Description |
 |------|-------------|
-| `python-coding-style.md` | Python code style |
-| `python-testing.md` | Pytest and BDD guidance |
-| `playwright-python-framework.md` | Framework workflow |
+| `common-testing.md` | Testing requirements and stability rules |
+| `python-coding-style.md` | Python code style (PEP 8, type hints) |
 | `python-security.md` | Security best practices |
-| `common-testing.md` | Testing requirements |
-| `test-automation-guardrails.md` | Core guardrails |
+| `python-testing.md` | Pytest and BDD guidance (Cursor-specific) |
+| `playwright-python-framework.md` | Framework workflow conventions |
+| `test-automation-guardrails.md` | Core test automation guardrails |
 
 ---
 

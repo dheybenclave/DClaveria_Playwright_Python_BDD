@@ -45,41 +45,40 @@ A production-ready test automation framework demonstrating modern UI + API autom
 DClaveria_Playwright_Python_BDD/
 ├── tests/
 │   ├── features/              # Gherkin .feature files
-│   │   ├── e2e_suites/       # End-to-end flows
-│   │   ├── regression_suites/ # Login, sign-up
-│   │   ├── api_suites/       # REST API CRUD
-│   │   ├── security_suites/ # XSS, SQL injection, auth
-│   │   └── accessibility_suites/
-│   ├── step_definitions/      # Step implementations
-│   │   ├── ui/             # login, sign_up, products, checkout, payment, common
-│   │   ├── api/            # user, order, search, brands, products
-│   │   ├── security/       # authentication, xss, sql_injection
-│   │   └── accessibility/  # a11y
-│   └── test_datas/         # JSON, CSV test data
+│   │   ├── e2e_suites/       # Full user journey flows
+│   │   ├── regression_suites/ # Critical path validation (login, sign-up)
+│   │   ├── api_suites/       # REST API CRUD operations
+│   │   ├── security_suites/  # XSS, SQL injection, auth tests
+│   │   └── accessibility_suites/ # WCAG validations
+│   ├── step_definitions/      # Thin step glue
+│   │   ├── ui/               # login, sign_up, products, checkout, payment, common
+│   │   ├── api/              # user, order, search, brands, products
+│   │   ├── security/         # authentication, xss, sql_injection
+│   │   └── accessibility/    # a11y checks
+│   └── test_datas/          # JSON, CSV data files
 ├── src/
 │   └── pages/
-│       ├── ui/             # login_page, signup_page, products_page, etc.
-│       ├── api/            # base_api, user, order, search, get, post, put, delete
-│       ├── base_page.py    # Base page object
-│       └── common_page.py  # Shared UI utilities
+│       ├── ui/              # Rich page objects (locators + actions)
+│       ├── api/             # API client layer
+│       ├── base_page.py     # Core UI base class
+│       └── common_page.py   # Shared UI utilities
 ├── utils/
-│   ├── config.py           # Environment configuration
-│   ├── logger.py          # Logging utilities
-│   ├── test_state.py      # Test state management
-│   ├── api_helpers.py    # API utilities
-│   └── security_payloads.py  # Security test payloads
-├── conftest.py            # Pytest fixtures
-├── pytest.ini           # Pytest configuration
-├── requirements.txt    # Python dependencies
-├── test-results/       # Reports, screenshots, videos
-├── allure-results/    # Allure raw results
-├── .env               # Environment secrets
-├── .github/workflows/ # GitHub Actions
-├── scripts/           # Bootstrap scripts
-│
-├── .claude/          # Claude AI config
-├── .cursor/          # Cursor AI config
-└── .kilo/           # Kilo AI config
+│   ├── config.py            # Environment & secrets loader
+│   ├── logger.py            # Structured logging
+│   ├── test_state.py        # Cross-step state sharing
+│   ├── api_helpers.py       # HTTP session helpers
+│   └── security_payloads.py # Malicious input vectors
+├── conftest.py              # Pytest fixtures & hooks
+├── pytest.ini               # Pytest config (markers, timeout)
+├── requirements.txt         # Python dependencies
+├── test-results/            # HTML reports, screenshots, videos
+├── allure-results/          # Raw Allure JSON
+├── .env                     # Local secrets (git-ignored)
+├── .github/workflows/       # CI pipelines
+├── scripts/                 # Bootstrap & helper scripts
+├── .claude/                 # Claude AI config & agents
+├── .cursor/                 # Cursor AI config & agents
+└── .kilo/                   # Kilo AI config & agents
 ```
 
 ---
@@ -114,25 +113,27 @@ python -m playwright install --with-deps
 
 ### Environment Configuration
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory (copy from `.env.example` if provided):
 
 ```env
-# Required
+# Required - Target application
 BASE_URL=https://automationexercise.com
 
-# Optional - Browser
+# Optional - Browser behavior
 HEADLESS=true
 RECORD_VIDEO=false
 PLAYWRIGHT_DEFAULT_TIMEOUT=15000
 
-# Optional - Credentials
-ADMIN_EMAIL=your_email@test.com
-ADMIN_PASSWORD=your_password
+# Optional - Test accounts (for multi-user scenarios)
+ADMIN_EMAIL=admin@test.com
+ADMIN_PASSWORD=admin123
 LIST_OF_CREDENTIALS='[{"email":"user@test.com","password":"pass123"}]'
 
 # Optional - Reporting
 AUTO_GENERATE_ALLURE=false
 ```
+
+**Security note:** `.env` is git-ignored. Never commit real credentials.
 
 ---
 
@@ -318,8 +319,20 @@ When updating rules:
 
 | Workflow | File | Description |
 |----------|------|-------------|
-| Main | `.github/workflows/main.yml` | Standard test execution |
-| Agentic QA | `.github/workflows/agentic-qa.yml` | AI-powered validation |
+| Main | `.github/workflows/main.yml` | Standard test execution on push/PR |
+| Agentic QA | `.github/workflows/agentic-qa.yml` | AI-powered validation workflow |
+
+### Jenkins
+
+| Item | Details |
+|------|---------|
+| Pipeline file | `Jenkinsfile` |
+| Deployment guide | `JENKINS_DEPLOY.md` |
+| Required plugins | Pipeline, Git, HTML Publisher, JUnit, Credentials Binding |
+| Agent OS | Linux (Ubuntu 22.04+ recommended) |
+| Key parameters | `PYTEST_MARKER`, `RUN_TARGETED`, `RUN_REGRESSION`, `HEADLESS`, `RECORD_VIDEO`, `PARALLEL` |
+
+**Quick start**: See `JENKINS_DEPLOY.md` for step-by-step setup.
 
 ### Local Bootstrap
 
@@ -345,28 +358,34 @@ When updating rules:
 
 ## Pytest Markers Reference
 
-| Marker | Usage |
-|--------|-------|
-| `@TC#` | Specific test case (e.g., `@TC6`) |
-| `@ui` | UI E2E tests |
+| Marker | Description |
+|--------|-------------|
+| `@TC#` | Specific test case ID (e.g., `@TC6`, `@TC7`) |
+| `@ui` | UI/E2E tests |
 | `@api` | API CRUD tests |
 | `@regression` | Full regression suite |
 | `@login` | Login page tests |
-| `@positive_testing` | Positive test cases |
-| `@negative_testing` | Negative test cases |
+| `@signup` | Sign-up page tests |
+| `@products` | Products page tests |
+| `@checkout` | Checkout flow tests |
+| `@payment` | Payment tests |
+| `@positive_testing` | Happy path scenarios |
+| `@negative_testing` | Error/edge case scenarios |
+| `@security` | Security-focused tests (XSS, SQLi, auth) |
 
 ---
 
 ## Documentation Reference
 
-| File | Description |
-|------|-------------|
-| `AGENTS.md` | Unified AI agent guidelines (all platforms) |
+| File | Purpose |
+|------|---------|
+| `AGENTS.md` | Unified AI agent guidelines (Claude, Cursor, Kilo) |
 | `CLAUDE.md` | Claude-specific configuration |
 | `CURSOR.md` | Cursor-specific configuration |
 | `KILO.md` | Kilo-specific configuration |
-| `.cursor/AGENTIC_QA_GUIDE.md` | Cursor workflow guide |
-| `.claude/AGENTIC_QA_GUIDE.md` | Claude workflow guide |
+| `.kilo/AGENTIC_QA_GUIDE.md` | Claude workflow guide |
+| `.kilo/AGENTIC_QA_GUIDE.md` | Cursor workflow guide |
+| `.kilo/rules/` | Framework rule set (linting, testing, security) |
 
 ---
 

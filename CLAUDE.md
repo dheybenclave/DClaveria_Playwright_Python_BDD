@@ -89,11 +89,15 @@ Claude has the most comprehensive command set:
 
 **Directory**: `.claude/rules/`
 
+All rules are synced with Cursor and Kilo:
+
 | Rule | Description |
 |------|-------------|
+| `common-testing.md` | Testing requirements and stability rules |
+| `python-coding-style.md` | Python code style (PEP 8, type hints) |
+| `python-security.md` | Security best practices |
+| `playwright-python-framework.md` | Framework workflow conventions |
 | `test-automation-guardrails.md` | Core test automation guardrails |
-
-Note: Additional rules are shared with Cursor and Kilo in their respective `.rules/` directories.
 
 ---
 

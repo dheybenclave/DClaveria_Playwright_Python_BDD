@@ -188,8 +188,8 @@ result = collect_tests()
 
 Shows Kilo QA agentic startup checklist:
 ```bash
-python .cursor/skills/init/scripts/verify_env.py
-python .cursor/skills/init/scripts/smoke_collect.py
+python .kilo/skills/init/scripts/verify_env.py
+python .kilo/skills/init/scripts/smoke_collect.py
 ```
 
 ### Before Prompt Submit
@@ -207,7 +207,7 @@ Validates prompts for secrets before submission. Detects:
 
 Reminds quick checks after file edits:
 ```bash
-python .cursor/skills/init/scripts/smoke_collect.py
+python .kilo/skills/init/scripts/smoke_collect.py
 ```
 
 ---

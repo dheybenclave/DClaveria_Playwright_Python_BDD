@@ -7,7 +7,7 @@ import time
 from pytest_bdd import when, then, given, parsers
 
 
-def _safe_json_response(response):
+def _safe_json_response(response) -> dict:
     """Helper to safely parse JSON or return fallback"""
     try:
         return response.json()
@@ -24,17 +24,18 @@ def configure_api_base_url(pages):
 
 @when(parsers.parse('I send a "GET" request to "{endpoint}" with search query "{query}"'), target_fixture="api_response_data")
 @when(parsers.parse('I send a "POST" request to "{endpoint}" with search query "{query}"'), target_fixture="api_response_data")
-def search_products(pages, endpoint, query):
+@when(parsers.parse('I send a "POST" request to "{endpoint}" with search term "{query}"'), target_fixture="api_response_data")
+def search_products(pages, endpoint: str, query: str) -> dict:
     """Search for products with given query"""
     endpoint_key = endpoint.strip().lower()
 
+    start_time = time.perf_counter()
     if endpoint_key == "/api/searchproduct":
         # Use POST method as per API 5 documentation
         response = pages.api.search_product.get(search_query=query)
     else:
         raise AssertionError(f"Unsupported endpoint: {endpoint}")
 
-    start_time = time.perf_counter()
     duration_ms = round((time.perf_counter() - start_time) * 1000)
     response_json = _safe_json_response(response)
 
@@ -92,3 +93,13 @@ def verify_no_products(api_response_data):
     elif "message" in response_json:
         message = response_json["message"].lower()
         assert "not found" in message or "no" in message
+
+
+@then("the response should contain search results")
+def verify_search_results(api_response_data):
+    """Verify response contains search results"""
+    response_json = api_response_data["json"]
+    # Accept various response formats
+    has_products = "products" in response_json and isinstance(response_json["products"], list)
+    has_response = "response" in response_json and response_json["response"]
+    assert has_products or has_response, "Search response missing expected data structure"

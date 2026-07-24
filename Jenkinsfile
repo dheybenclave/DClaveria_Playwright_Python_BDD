@@ -49,27 +49,6 @@ parameters {
       }
     }
 
-    stage('Agentic Init Verification') {
-      steps {
-        // Use unified init scripts from .kilo (canonical location)
-        // Fallback to .cursor if .kilo not yet synced
-        sh '''
-          set -e  # Fail on any error
-          if [ -f ".kilo/skills/init/scripts/verify_env.py" ]; then
-            python3 .kilo/skills/init/scripts/verify_env.py
-            python3 .kilo/skills/init/scripts/smoke_collect.py
-          elif [ -f ".cursor/skills/init/scripts/verify_env.py" ]; then
-            echo "[INFO] Using .cursor init scripts (legacy)"
-            python3 .cursor/skills/init/scripts/verify_env.py
-            python3 .cursor/skills/init/scripts/smoke_collect.py
-          else
-            echo "[ERROR] No init scripts found in .kilo or .cursor"
-            exit 1
-          fi
-        '''
-      }
-    }
-
     stage('Test Collection Validation') {
       steps {
         sh '''

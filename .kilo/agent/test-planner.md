@@ -1,3 +1,8 @@
+---
+name: "test-planner"
+description: "Use this agent when you need to create test plans, analyze application functionality, or design comprehensive test scenarios. Examples: building test plans for new features, navigating and exploring a web application to understand user flows, designing test scenarios for critical paths, or planning regression suites."
+---
+
 # Test Planner Agent
 
 Specialized agent for creating comprehensive test plans for web applications.
@@ -56,24 +61,6 @@ Output format:
 - **Test Data**: [Required test data]
 ```
 
-## Usage
-
-```bash
-kilo "Create test plan for checkout feature"
-```
-
-or
-
-```bash
-kilo "Plan regression suite for login flow"
-```
-
-## Example Prompts
-
-- "Create a test plan for the checkout process including guest and logged-in user flows"
-- "Plan a regression suite for the user authentication feature"
-- "Design test scenarios for the shopping cart functionality"
-
 ## Best Practices
 
 1. **Be specific**: Include exact steps and expected results
@@ -85,6 +72,13 @@ kilo "Plan regression suite for login flow"
 ## Integration
 
 This agent works with:
-- `.kilo/command/test.md` - For running planned tests
-- `.kilo/command/debug.md` - For debugging planned tests
-- `.github/workflows/main.yml` - For CI execution
+- `.kilo/command/test.md` — For running planned tests
+- `.kilo/command/debug.md` — For debugging planned tests
+- `.github/workflows/main.yml` — For CI execution
+
+## Reference
+
+- **Unified AGENTS.md**: See [AGENTS.md](../AGENTS.md) for all platform guidelines
+- **CLAUDE.md**: See [CLAUDE.md](../CLAUDE.md) for Claude-specific commands
+- **KILO.md**: See [KILO.md](../KILO.md) for Kilo-specific commands
+

@@ -4,9 +4,9 @@ setlocal
 set "MODE=%~1"
 if "%MODE%"=="" set "MODE=both"
 
-if /I not "%MODE%"=="claude" if /I not "%MODE%"=="cursor" if /I not "%MODE%"=="both" (
+if /I not "%MODE%"=="claude" if /I not "%MODE%"=="kilo" if /I not "%MODE%"=="both" (
   echo.
-  echo Usage: scripts\run_agentic_ai.bat [claude^|cursor^|both]
+  echo Usage: scripts\run_agentic_ai.bat [claude^|kilo^|both]
   echo Example: scripts\run_agentic_ai.bat both
   exit /b 1
 )
@@ -21,7 +21,7 @@ if errorlevel 1 (
 )
 
 if /I "%MODE%"=="claude" goto :claude
-if /I "%MODE%"=="cursor" goto :cursor
+if /I "%MODE%"=="kilo" goto :kilo
 if /I "%MODE%"=="both" goto :both
 
 :claude
@@ -36,30 +36,30 @@ echo [Claude] Suggested next command:
 echo   pytest -m "TC6 or TC7" -q
 goto :end
 
-:cursor
+:kilo
 echo.
-echo [Cursor] Use these project files:
-echo   - .cursor\hooks.json
-echo   - .cursor\mcp.json
-echo   - .cursor\rules\
-echo   - .cursor\AGENTIC_QA_GUIDE.md
+echo [Kilo] Use these project files:
+echo   - .kilo\kilo.json
+echo   - .kilo\mcp\
+echo   - .kilo\hooks\
+echo   - .kilo\AGENTIC_QA_GUIDE.md
 echo.
-echo [Cursor] Suggested next command:
+echo [Kilo] Suggested next command:
 echo   pytest -m "TC6 or TC7" -q
 goto :end
 
 :both
 echo.
-echo [Claude + Cursor] Project is ready for both modes.
+echo [Claude + Kilo] Project is ready for both modes.
 echo.
 echo Claude files:
 echo   - .claude\settings.json
 echo   - .claude\AGENTIC_QA_GUIDE.md
 echo.
-echo Cursor files:
-echo   - .cursor\hooks.json
-echo   - .cursor\mcp.json
-echo   - .cursor\AGENTIC_QA_GUIDE.md
+echo Kilo files:
+echo   - .kilo\kilo.json
+echo   - .kilo\mcp\
+echo   - .kilo\AGENTIC_QA_GUIDE.md
 echo.
 echo Suggested next commands:
 echo   pytest --collect-only -q

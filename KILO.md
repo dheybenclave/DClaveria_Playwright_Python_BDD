@@ -8,7 +8,7 @@ This document provides Kilo-specific configuration for AI agents in this Playwri
 
 ```json
 {
-  "model": "kilo/minimax/minimax-m2.1:free",
+  "model": "nvidia/nemotron-3-super-120b-a12b:free",
   "permission": { "bash": "allow" }
 }
 ```
@@ -168,7 +168,7 @@ MCP (Model Context Protocol) server that provides AI-powered test automation too
 ```python
 import sys
 sys.path.insert(0, '.kilo/mcp')
-from server import run_tests_by_marker, collect_tests
+from fastmcp_server import run_tests_by_marker, collect_tests
 
 # Run tests by marker
 result = run_tests_by_marker('TC6')
@@ -188,8 +188,7 @@ result = collect_tests()
 
 Shows Kilo QA agentic startup checklist:
 ```bash
-python .kilo/skills/init/scripts/verify_env.py
-python .kilo/skills/init/scripts/smoke_collect.py
+pytest --collect-only
 ```
 
 ### Before Prompt Submit
@@ -207,7 +206,7 @@ Validates prompts for secrets before submission. Detects:
 
 Reminds quick checks after file edits:
 ```bash
-python .kilo/skills/init/scripts/smoke_collect.py
+pytest --collect-only
 ```
 
 ---
@@ -264,4 +263,3 @@ python .kilo/skills/init/scripts/smoke_collect.py
 
 - **Unified AGENTS.md**: See [AGENTS.md](./AGENTS.md) for all platform guidelines
 - **Claude config**: [`.claude/settings.json`](.claude/settings.json)
-- **Cursor config**: [`.cursor/hooks.json`](.cursor/hooks.json)

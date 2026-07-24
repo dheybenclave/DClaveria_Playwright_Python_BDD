@@ -1,3 +1,7 @@
+---
+name: "test-generator"
+---
+
 # Test Generator Agent
 
 Specialized agent for generating test cases, BDD scenarios, and page objects.
@@ -56,24 +60,6 @@ class LoginPage:
         self.login_button = page.get_by_role("button", name="Login")
 ```
 
-## Usage
-
-```bash
-kilo "Generate test cases for user registration"
-```
-
-or
-
-```bash
-kilo "Create BDD scenarios for password reset feature"
-```
-
-## Example Prompts
-
-- "Create pytest-bdd scenarios for: user can login, invalid password message, and locked account flow"
-- "Generate step definitions for the checkout process"
-- "Add page object methods for product search functionality"
-
 ## Generated Output
 
 ### Feature File Location
@@ -87,11 +73,11 @@ kilo "Create BDD scenarios for password reset feature"
 
 ## Best Practices
 
-1. **Thin step definitions** - Keep logic in page objects
-2. **Reuse existing pages** - Extend rather than recreate
-3. **Clear scenario names** - Use descriptive @TC markers
-4. **Example tables** - Use Scenario Outline for data-driven tests
-5. **Independent scenarios** - No dependencies between tests
+1. **Thin step definitions** — Keep logic in page objects
+2. **Reuse existing pages** — Extend rather than recreate
+3. **Clear scenario names** — Use descriptive @TC markers
+4. **Example tables** — Use Scenario Outline for data-driven tests
+5. **Independent scenarios** — No dependencies between tests
 
 ## Template: Feature File
 
@@ -115,6 +101,13 @@ Feature: [Feature Name]
 ## Integration
 
 This agent works with:
-- `.kilo/command/collect.md` - For collecting generated tests
-- `.kilo/command/test.md` - For running generated tests
+- `.kilo/command/collect.md` — For collecting generated tests
+- `.kilo/command/test.md` — For running generated tests
 - Existing page objects in `src/pages/`
+
+## Reference
+
+- **Unified AGENTS.md**: See [AGENTS.md](../AGENTS.md) for all platform guidelines
+- **KILO.md**: See [KILO.md](../KILO.md) for Kilo-specific commands
+- **CLAUDE.md**: See [CLAUDE.md](../CLAUDE.md) for Claude-specific commands
+

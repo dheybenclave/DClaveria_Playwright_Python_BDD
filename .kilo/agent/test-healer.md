@@ -1,3 +1,8 @@
+---
+name: "test-healer"
+description: "Use this agent when tests fail due to selector changes, stale selectors, flaky tests, or UI changes that break existing tests. Examples: fixing failing selectors in login page, healing flaky tests with proper waits, implementing locator fallback strategies for product cards, or resolving timing issues in test execution."
+---
+
 # Test Healer Agent
 
 Specialized agent for fixing failing tests and self-healing selectors.
@@ -54,24 +59,6 @@ Update page objects only:
 - Keep locators in `src/pages/`
 - Add descriptive comments
 
-## Usage
-
-```bash
-kilo "Fix failing selector in login page"
-```
-
-or
-
-```bash
-kilo "Heal flaky test TC6"
-```
-
-## Example Prompts
-
-- "The login button selector is failing - fix it with a more robust locator"
-- "This test is flaky due to timing - add proper waits"
-- "The product card selector breaks when new items are added - implement fallback"
-
 ## Fix Patterns
 
 ### Before (Fragile)
@@ -91,15 +78,22 @@ self.page.locator(".product-card").filter(has_text="Product Name").click()
 
 ## Best Practices
 
-1. **Never modify step definitions** - Only change page objects
-2. **Use semantic selectors** - Prefer `get_by_role`, `get_by_label`
-3. **Add fallback locators** - Multiple strategies for resilience
-4. **Centralize waits** - Use page object wait methods
-5. **Test fixes locally** - Verify before committing
+1. **Never modify step definitions** — Only change page objects
+2. **Use semantic selectors** — Prefer `get_by_role`, `get_by_label`
+3. **Add fallback locators** — Multiple strategies for resilience
+4. **Centralize waits** — Use page object wait methods
+5. **Test fixes locally** — Verify before committing
 
 ## Integration
 
 This agent works with:
-- `.kilo/command/debug.md` - For debugging issues
-- `.kilo/command/test.md` - For running fixed tests
+- `.kilo/command/debug.md` — For debugging issues
+- `.kilo/command/test.md` — For running fixed tests
 - Page objects in `src/pages/`
+
+## Reference
+
+- **Unified AGENTS.md**: See [AGENTS.md](../AGENTS.md) for all platform guidelines
+- **CLAUDE.md**: See [CLAUDE.md](../CLAUDE.md) for Claude-specific commands
+- **KILO.md**: See [KILO.md](../KILO.md) for Kilo-specific commands
+

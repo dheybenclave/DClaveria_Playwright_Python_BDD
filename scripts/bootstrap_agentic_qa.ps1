@@ -40,28 +40,9 @@ else {
 }
 
 Write-Host "[4/5] Verify project environment"
-# Use unified init scripts (canonical: .kilo; fallback: .cursor)
-if (Test-Path ".kilo/skills/init/scripts/verify_env.py") {
-    Invoke-CheckedPython ".kilo/skills/init/scripts/verify_env.py"
-} elseif (Test-Path ".cursor/skills/init/scripts/verify_env.py") {
-    Write-Host "[INFO] Using legacy .cursor init scripts" -ForegroundColor Yellow
-    Invoke-CheckedPython ".cursor/skills/init/scripts/verify_env.py"
-} else {
-    throw "Init scripts not found in .kilo or .cursor"
-}
+pytest --collect-only -q
 
-if ($RunSmokeCollect) {
-    Write-Host "[5/5] Run smoke collection"
-    if (Test-Path ".kilo/skills/init/scripts/smoke_collect.py") {
-        Invoke-CheckedPython ".kilo/skills/init/scripts/smoke_collect.py"
-    } elseif (Test-Path ".cursor/skills/init/scripts/smoke_collect.py") {
-        Invoke-CheckedPython ".cursor/skills/init/scripts/smoke_collect.py"
-    } else {
-        throw "Smoke collect script not found"
-    }
-} else {
-    Write-Host "[5/5] Skipped smoke collect"
-}
+Write-Host "[5/5] Run smoke collection"
 
 Write-Host "[Agentic QA] Bootstrap complete." -ForegroundColor Green
 Write-Host "Next: pytest -m `"TC6 or TC7`" -q"

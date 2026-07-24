@@ -315,9 +315,8 @@ In Jenkins:
 View real-time logs: **Build # → Console Output**
 
 Look for:
-- `[PASS]`/`[FAIL]` from `verify_env.py`
-- `pytest collection succeeded`
-- Test execution progress (`44 tests collected`)
+- `pytest collection succeeded` from `pytest --collect-only`
+- Test execution progress
 
 ### 9.2 Test Reports
 
@@ -421,7 +420,6 @@ Or disable Allure generation by setting `AUTO_GENERATE_ALLURE=false` and rely on
 ```bash
 # On agent, ensure Jenkins user can run Python/Node
 sudo chown -R jenkins:jenkins /workspace
-chmod +x .kilo/skills/init/scripts/*.py
 ```
 
 #### Issue: Missing `LIST_OF_CREDENTIALS`
@@ -455,7 +453,7 @@ chmod +x .kilo/skills/init/scripts/*.py
 
 2. **Check environment**:
    ```bash
-   python3 .kilo/skills/init/scripts/verify_env.py
+   pytest --collect-only
    ```
 
 3. **View Jenkins workspace**:
@@ -566,7 +564,6 @@ For issues or enhancements:
 The included `Jenkinsfile` provides:
 
 - Parameterized builds (marker, parallel, video, headless)
-- Environment verification (`.kilo/skills/init/scripts/verify_env.py`)
 - Test collection validation (`pytest --collect-only`)
 - Targeted test execution (marker-based)
 - Full regression suite (optional)

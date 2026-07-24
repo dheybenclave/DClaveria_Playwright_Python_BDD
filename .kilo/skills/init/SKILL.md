@@ -20,13 +20,13 @@ Init Progress:
 - [ ] Step 5: Run smoke collection
 - [ ] Step 6: Report readiness and next command
 ```
-
 ## Step 1: Verify Python and virtual environment
+
 Run:
 
 ```bash
 python --version
-python .cursor/skills/init/scripts/verify_env.py
+pytest --collect-only
 ```
 
 If no virtual environment is active, create and activate one:
@@ -39,7 +39,7 @@ Then activate it based on OS:
 - Windows (PowerShell): `.venv/Scripts/Activate.ps1`
 - macOS/Linux: `source .venv/bin/activate`
 
-Run `python .cursor/skills/init/scripts/verify_env.py` again after activation.
+Run `pytest --collect-only` again after activation.
 
 ## Step 2: Install or validate dependencies
 Run:
@@ -62,12 +62,12 @@ If `--with-deps` is unsupported in the environment, retry with:
 ```bash
 python -m playwright install
 ```
-
 ## Step 4: Validate env configuration
+
 Run:
 
 ```bash
-python .cursor/skills/init/scripts/verify_env.py
+pytest --collect-only
 ```
 
 Review `.env` values only for presence/shape (never print secrets in full). Required keys:
@@ -79,12 +79,12 @@ Optional keys:
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD`
 - `LIST_OF_CREDENTIALS`
-
 ## Step 5: Run smoke collection
+
 Run:
 
 ```bash
-python .cursor/skills/init/scripts/smoke_collect.py
+pytest -m "TC6 or TC7" -q
 ```
 
 If collection fails, report top error and likely fix.
@@ -105,5 +105,5 @@ Recommended next command:
 ```
 
 ## Utility Scripts
-- Detailed environment checks: [scripts/verify_env.py](../scripts/verify_env.py) (located at .cursor/skills/init/scripts/)
-- Fast pytest collection smoke test: [scripts/smoke_collect.py](../scripts/smoke_collect.py) (located at .cursor/skills/init/scripts/)
+- Detailed environment checks: Use `pytest --collect-only`
+- Fast pytest collection smoke test: Run `pytest -m "TC6 or TC7" -q`

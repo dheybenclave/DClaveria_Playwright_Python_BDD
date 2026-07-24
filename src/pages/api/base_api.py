@@ -75,3 +75,12 @@ class ApiBasePage:
     def search_product(self):
         from src.pages.api.search.search_product import SearchProduct
         return SearchProduct(self.request)
+
+    def validate_status(self, response_data: dict, expected_status: int) -> None:
+        self.logger.debug(f"Validating API response status: {expected_status}")
+        response_json = response_data.get("json", {})
+        response_status = response_data.get("status", 200)
+        response_code = response_json.get("responseCode", response_status)
+        assert response_code == expected_status, (
+            f"Expected responseCode {expected_status}, but got {response_code}"
+        )

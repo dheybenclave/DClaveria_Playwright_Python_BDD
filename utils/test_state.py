@@ -2,21 +2,22 @@
 import json
 import logging
 import os
+import tempfile
 from typing import Any, Optional
 
 
 class TestContext:
     """
-    Unified test state management for storing request/response data 
+    Unified test state management for storing request/response data
     and test data across test steps.
-    
+
     This class provides both file-based persistence (for E2E tests)
     and in-memory storage (for API tests).
     """
-    
+
     # In-memory storage for API tests
     _memory_data: dict = {}
-    
+
     def __init__(self):
         self.directory = os.path.join("test-results", "test_state")
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -44,7 +45,7 @@ class TestContext:
             except Exception:
                 # If extraction fails, store minimal data
                 value = {"status": getattr(value, 'status', None), "status_text": getattr(value, 'status_text', None)}
-        
+
         self.data[key] = value
         TestContext._memory_data[key] = value
         self._write_file()
@@ -53,31 +54,36 @@ class TestContext:
         """Get value from memory, fall back to file if needed"""
         if key in TestContext._memory_data:
             return TestContext._memory_data[key]
-        
+
         self._read_file()
         if key in self.data:
             TestContext._memory_data[key] = self.data[key]
             return self.data[key]
-            
+
         raise KeyError(
             f"Key '{key}' not found for Worker {self.pid} in {self.filepath}. "
             "Check if the previous sequence step failed."
         )
 
     def get(self, key: str, default: Any = None) -> Any:
-        """Get value with default fallback"""
+        """Get value by key.  Returns default instead of raising when the
+        value is not present AND the state file is absent or corrupted (e.g.
+        due to a concurrent-worker write race under pytest-xdist ``-n auto``)."""
         try:
             return self.get_strict(key)
-        except KeyError:
+        except (KeyError, json.JSONDecodeError, TypeError, ValueError, OSError):
+            # Suppress KeyError (key or file absent) and any unexpected
+            # error from a corrupt JSON state file; the caller receives
+            # ``default`` safely.
             return default
 
     # === API Response Storage ===
-    
+
     @property
     def last_response(self) -> dict:
         """Get last API response data"""
         return self.get("last_response", {})
-    
+
     @last_response.setter
     def last_response(self, value: dict) -> None:
         """Set last API response data"""
@@ -97,7 +103,7 @@ class TestContext:
         return responses.get(endpoint)
 
     # === Test Data Storage (for user data from JSON) ===
-    
+
     def set_data(self, key: str, value: Any) -> None:
         """Store arbitrary test data"""
         self.set(key, value)
@@ -108,12 +114,12 @@ class TestContext:
         return self.get(key, default)
 
     # === User Data Storage ===
-    
+
     @property
     def last_created_user(self) -> Optional[dict]:
         """Get last created user data"""
         return self.get("last_created_user")
-    
+
     @last_created_user.setter
     def last_created_user(self, value: dict) -> None:
         """Set last created user data"""
@@ -124,7 +130,7 @@ class TestContext:
     def last_created_order(self) -> Optional[dict]:
         """Get last created order data"""
         return self.get("last_created_order")
-    
+
     @last_created_order.setter
     def last_created_order(self, value: dict) -> None:
         """Set last created order data"""
@@ -132,7 +138,7 @@ class TestContext:
         TestContext._memory_data["last_created_order"] = value
 
     # === Cleanup ===
-    
+
     def clear(self) -> None:
         """Clear all stored data"""
         self.last_response = {}
@@ -155,9 +161,25 @@ class TestContext:
                 if hasattr(value, '__dict__') and 'json' in value.__class__.__name__.lower():
                     continue
                 serializable_data[key] = value
-            
-            with open(self.filepath, 'w') as f:
-                json.dump(serializable_data, f, indent=4)
+
+            # Write to a temp file first so that a concurrent reader never
+            # sees a half-written JSON document.  os.replace() is atomic on
+            # all POSIX filesystems and on NTFS (Windows 10+).
+            fd, tmp_path = tempfile.mkstemp(
+                dir=os.path.dirname(self.filepath),
+                suffix='.tmp'
+            )
+            try:
+                with os.fdopen(fd, 'w') as f:
+                    json.dump(serializable_data, f, indent=4)
+                os.replace(tmp_path, self.filepath)
+            except BaseException:
+                # Clean up the temp file on any failure
+                try:
+                    os.unlink(tmp_path)
+                except OSError:
+                    pass
+                raise
         except PermissionError:
             self.logger.warning("Unable to write test state file: %s", self.filepath)
         except (TypeError, ValueError) as e:
@@ -170,6 +192,17 @@ class TestContext:
                     self.data = json.load(f)
             except PermissionError:
                 self.logger.warning("Unable to read test state file: %s", self.filepath)
+            except json.JSONDecodeError:
+                # File was written concurrently by another worker and is
+                # currently truncated / partially written.  Rather than
+                # crashing, keep the in-memory data and log the issue so
+                # a short retry on the next call can succeed.
+                self.logger.warning(
+                    "Corrupted test state file detected (%s) – "
+                    "likely a parallel-worker write race. "
+                    "In-memory data preserved for this attempt.",
+                    self.filepath
+                )
 
     def cleanup(self):
         """Clean up test state files"""

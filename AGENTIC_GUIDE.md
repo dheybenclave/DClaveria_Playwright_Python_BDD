@@ -1,11 +1,11 @@
 # Agentic QA Guide — Unified Workflow
 
-This guide unifies Kilo, Cursor, and Claude AI agent workflows for the Playwright Python BDD framework.
+This guide unifies Kilo and Claude AI agent workflows for the Playwright Python BDD framework.
 
 ## Overview
 
-All three AI platforms share:
-- **Same rule set** (`.kilo/rules/`, `.cursor/rules/`, `.claude/rules/`)
+Both AI platforms share:
+- **Same rule set** (`.kilo/rules/` and `.claude/rules/` are synchronized copies)
 - **Same test structure** (`tests/features/`, `src/pages/`, `utils/`)
 - **Same execution model** (pytest + pytest-bdd, marker-driven)
 
@@ -21,12 +21,9 @@ pip install -r requirements.txt
 python -m playwright install --with-deps
 
 # 2. Verify environment (all platforms)
-python .cursor/skills/init/scripts/verify_env.py
-
-# 3. Collect tests (always before commit)
 pytest --collect-only
 
-# 4. Run targeted tests
+# 3. Run targeted tests
 pytest -m "TC6"
 ```
 
@@ -37,7 +34,6 @@ pytest -m "TC6"
 | Platform | Init/Verify | Config | Agents | Commands | Skills |
 |----------|------------|--------|--------|----------|--------|
 | **Kilo** | `.kilo/hooks/session_start.py` | `.kilo/kilo.json` | `.kilo/agent/` | `.kilo/command/` | `.kilo/skills/` |
-| **Cursor** | `.cursor/hooks/session_start.py` | `.cursor/hooks.json` | Shared | Shared | `.cursor/skills/` |
 | **Claude** | `.claude/hooks/session_start.py` | `.claude/settings.json` | `.claude/agents/` | `.claude/commands/` | — |
 
 ---
@@ -52,9 +48,7 @@ The 5 core rule files are synchronized across all platforms:
 4. **playwright-python-framework.md** — Workflow, paths, commands
 5. **test-automation-guardrails.md** — Selectors, waits, BDD discipline
 
-**Cursor additionally has**: `python-testing.md` (pytest-specific guidance)
-
-**Location priority**: Rules live in `.kilo/rules/` (canonical) and are copied to `.cursor/rules/` and `.claude/rules/`.
+**Synchronized copies**: Rules are maintained in both `.kilo/rules/` and `.claude/rules/`.
 
 ---
 
@@ -79,7 +73,7 @@ The 5 core rule files are synchronized across all platforms:
 
 1. **NO selectors in step definitions** — All selectors in page objects (`src/pages/`)
 2. **NO time.sleep()** — Use `expect(locator).to_be_visible()`, `page.wait_for_load_state()`
-3. **NO long step definitions** — Keep steps 1–3 lines; delegate to pages
+3. **NO long step definitions** — Keep steps focused and minimal; delegate complex logic to page objects
 4. **NO hardcoded secrets** — Use `.env`, `Config` class
 5. **ALWAYS run `--collect-only` before commit**
 6. **ALWAYS tag scenarios with `@TC#` markers**
@@ -179,19 +173,14 @@ npx allure serve allure-results
 ## Platform-Specific Notes
 
 ### Kilo
-- Uses FastMCP server (`.kilo/mcp/server.py`) for AI tool integration
+- Uses FastMCP server (`.kilo/mcp/fastmcp_server.py`) for AI tool integration
 - Commands accessible via `kilo "<command>"` syntax
 - Hooks run automatically on session start/file edit
 
-### Cursor
-- MCP via `@playwright/mcp` in `.cursor/mcp.json`
-- Slash commands (e.g., `/feature-development`) via AGENTS.md
-- Skills in `.cursor/skills/` for init/bootstrap
-
 ### Claude
 - MCP via `playwright-local` in `.claude/settings.json`
-- Commands via `.claude/commands/` (e.g., `feature-development`, `test-debugging`)
-- Agents in `.claude/agents/` (qa-test-automation-engineer, test-architect, etc.)
+- Commands via `.claude/commands/` (e.g., `feature-development`, `test-debugging`, `generate-test-cases`, `plan-regression-suite`, `self-heal-tests`, `agentic-ci-cd`, `agentic-bootstrap`)
+- Agents in `.claude/agents/` (qa-test-automation-engineer, test-architect, test-generator, test-healer, test-planner, product-owner-business-analyst, scrum-team-leader)
 
 ---
 
@@ -245,6 +234,6 @@ npx allure serve allure-results
 
 - **[AGENTS.md](./AGENTS.md)** — Unified coding guidelines (all platforms)
 - **[README.md](./README.md)** — Project overview, setup, execution
-- **Platform configs**: [CLAUDE.md](./CLAUDE.md) · [CURSOR.md](./CURSOR.md) · [KILO.md](./KILO.md)
-- **Rule set**: `.kilo/rules/` (canonical) → `.cursor/rules/` & `.claude/rules/` (mirrored)
-- **Agent guides**: `.claude/AGENTIC_QA_GUIDE.md` · `.cursor/AGENTIC_QA_GUIDE.md` · `.kilo/AGENTIC_QA_GUIDE.md`
+- **Platform configs**: [CLAUDE.md](./CLAUDE.md) · [KILO.md](./KILO.md)
+- **Rule set**: `.kilo/rules/` and `.claude/rules/` (synchronized copies)
+- **Agent guides**: `.claude/agents/` · `.kilo/agent/`

@@ -108,7 +108,7 @@ If any step fails, fix before proceeding.
 - Keep feature files readable by non-technical stakeholders
 - Ensure scenario names are unique and imperative ("User can...", "System shows...")
 - Update `README.md`, `AGENTS.md`, and platform-specific docs when workflow conventions change
-- Sync rule files across `.kilo/rules/`, `.cursor/rules/`, `.claude/rules/` after any modification
+- Sync rule files across `.kilo/rules/` and `.claude/rules/` after any modification
 
 ## No-No List (Never Do)
 

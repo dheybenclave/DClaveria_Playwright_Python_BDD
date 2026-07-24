@@ -15,8 +15,7 @@ Use this workflow to maintain CI agentic QA pipelines.
 ## Sequence
 
 1. Validate bootstrap checks are present:
-   - `verify_env.py`
-   - `smoke_collect.py`
+   - `pytest --collect-only`
 2. Ensure marker execution is parameterized.
 3. Ensure artifact upload/archive is enabled.
 4. Run a CI dry-run in PR or manual dispatch.

@@ -1,5 +1,5 @@
 print(
     "[Claude QA Agentic] After edit reminder: "
-    "run python .cursor/skills/init/scripts/smoke_collect.py "
+    "run pytest --collect-only "
     "and rerun affected marker."
 )

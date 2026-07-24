@@ -1,6 +1,4 @@
 # Created by dheyb at 3/5/2026
-
-
 Feature: User Login Validation
 
   @login @regression
@@ -18,5 +16,3 @@ Feature: User Login Validation
     Examples:
       | page   | user_role     | result_message                       |
       | /login | invalid_admin | Your email or password is incorrect! |
-
-

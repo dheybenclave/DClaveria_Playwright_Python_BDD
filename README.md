@@ -35,7 +35,7 @@ A production-ready test automation framework demonstrating modern UI + API autom
 - **Data-driven testing** with feature tables
 - **Security testing** (XSS, SQL injection, authentication)
 - **Accessibility testing** (basic a11y validations)
-- **Multi-AI platform support** (Claude, Cursor, Kilo)
+- **Multi-AI platform support** (Claude, Kilo)
 
 ---
 
@@ -58,10 +58,15 @@ DClaveria_Playwright_Python_BDD/
 │   └── test_datas/          # JSON, CSV data files
 ├── src/
 │   └── pages/
-│       ├── ui/              # Rich page objects (locators + actions)
-│       ├── api/             # API client layer
 │       ├── base_page.py     # Core UI base class
-│       └── common_page.py   # Shared UI utilities
+│       ├── login_page.py    # Login page object
+│       ├── sign_up_page.py  # Sign-up page object
+│       ├── products_page.py # Products page object
+│       ├── checkout_page.py # Checkout page object
+│       ├── payment_page.py  # Payment page object
+│       ├── common_page.py   # Shared UI utilities
+│       ├── api/             # API client layer (nested by endpoint)
+│       └── ui/              # UI container (mostly empty)
 ├── utils/
 │   ├── config.py            # Environment & secrets loader
 │   ├── logger.py            # Structured logging
@@ -77,8 +82,8 @@ DClaveria_Playwright_Python_BDD/
 ├── .github/workflows/       # CI pipelines
 ├── scripts/                 # Bootstrap & helper scripts
 ├── .claude/                 # Claude AI config & agents
-├── .cursor/                 # Cursor AI config & agents
-└── .kilo/                   # Kilo AI config & agents
+├── .kilo/                   # Kilo AI config & agents
+└──
 ```
 
 ---
@@ -258,14 +263,13 @@ npx allure serve allure-results
 
 ## 8. AI Agent Configuration
 
-This project uses **three synchronized AI platforms** for agentic QA automation.
+This project uses **two synchronized AI platforms** for agentic QA automation.
 
 ### Platform Overview
 
 | Platform | Config File | Rules Directory | Docs |
 |----------|-------------|-----------------|------|
 | Claude | `.claude/settings.json` | `.claude/rules/` | `CLAUDE.md` |
-| Cursor | `.cursor/hooks.json` | `.cursor/rules/` | `CURSOR.md` |
 | Kilo | `.kilo/kilo.json` | `.kilo/rules/` | `KILO.md` |
 
 **Unified Guide:** See `AGENTS.md` for all platform guidelines.
@@ -274,10 +278,13 @@ This project uses **three synchronized AI platforms** for agentic QA automation.
 
 | Agent | Description |
 |-------|-------------|
-| test-executor | Run smoke, regression, E2E, API, security tests |
+| qa-test-automation-engineer | QA automation specialist |
 | test-architect | Framework design, code review, architecture |
-| product-owner | Requirements analysis, user stories |
-| scrum-master | Team coordination, sprint planning |
+| test-generator | Generate BDD scenarios and page objects |
+| test-healer | Fix failing selectors and flaky tests |
+| test-planner | Plan regression suites and test strategies |
+| product-owner-business-analyst | Requirements analysis, user stories |
+| scrum-team-leader | Project management |
 
 ### Kilo Agents (`.kilo/agent/`)
 
@@ -285,22 +292,19 @@ This project uses **three synchronized AI platforms** for agentic QA automation.
 |-------|-------------|
 | test-executor | Run tests, analyze results |
 | test-architect | Framework architecture |
+| test-generator | Generate test cases |
+| test-healer | Fix flaky tests |
+| test-planner | Test planning |
 | product-owner | Requirements analysis |
 | scrum-master | Team coordination |
-| test-planner | Test planning |
-| test-healer | Fix flaky tests |
-| test-generator | Generate test cases |
 
 ### Session Start Actions
 
 Each platform runs startup hooks to verify environment:
 
 ```bash
-# Verify environment
-python .cursor/skills/init/scripts/verify_env.py
-
-# Collect tests
-python .cursor/skills/init/scripts/smoke_collect.py
+# Verify environment and test discovery
+pytest --collect-only
 ```
 
 ### Sync Strategy
@@ -308,7 +312,7 @@ python .cursor/skills/init/scripts/smoke_collect.py
 When updating rules:
 
 1. Make change in primary location
-2. Copy to all three directories: `.claude/rules/`, `.cursor/rules/`, `.kilo/rules/`
+2. Copy to both directories: `.claude/rules/`, `.kilo/rules/`
 3. Run `pytest --collect-only` to validate
 
 ---
@@ -379,12 +383,11 @@ When updating rules:
 
 | File | Purpose |
 |------|---------|
-| `AGENTS.md` | Unified AI agent guidelines (Claude, Cursor, Kilo) |
+| `AGENTS.md` | Unified AI agent guidelines (Claude, Kilo) |
 | `CLAUDE.md` | Claude-specific configuration |
-| `CURSOR.md` | Cursor-specific configuration |
 | `KILO.md` | Kilo-specific configuration |
-| `.kilo/AGENTIC_QA_GUIDE.md` | Claude workflow guide |
-| `.kilo/AGENTIC_QA_GUIDE.md` | Cursor workflow guide |
+| `.claude/AGENTIC_QA_GUIDE.md` | Claude workflow guide |
+| `.kilo/AGENTIC_QA_GUIDE.md` | Kilo workflow guide |
 | `.kilo/rules/` | Framework rule set (linting, testing, security) |
 
 ---

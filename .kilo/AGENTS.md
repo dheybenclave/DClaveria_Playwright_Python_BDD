@@ -1,6 +1,6 @@
 # AGENTS.md - Unified AI Agent Coding Guidelines
 
-This document provides commands and code style guidelines for **all AI coding agents** operating in this Playwright Python BDD test automation project. It applies to Claude, Cursor, and Kilo.
+This document provides commands and code style guidelines for **all AI coding agents** operating in this Playwright Python BDD test automation project. It applies to Claude and Kilo.
 
 ---
 
@@ -18,7 +18,6 @@ This document provides commands and code style guidelines for **all AI coding ag
 | `tests/step_definitions/ui/` | Declarative step glue (thin) |
 | `tests/step_definitions/api/` | API step definitions |
 | `src/pages/` | Page objects with locators and assertions (rich) |
-| `src/pages/api/` | API page-object layer |
 | `utils/` | Environment handling, logging utilities |
 | `test-results/` | HTML reports, screenshots/videos on failure |
 
@@ -243,14 +242,13 @@ logger.info(f"Logged in as {masked_user}")
 
 ## Unified AI Platform Configuration
 
-This project uses **three AI platforms** that must stay synchronized.
+This project uses **two AI platforms** that must stay synchronized.
 
 ### Platform Configurations
 
 | Platform | Config File | Rules Directory | Hooks |
 |----------|-------------|-----------------|-------|
 | Claude | `.claude/settings.json` | `.claude/rules/` | `.claude/hooks/` |
-| Cursor | `.cursor/hooks.json` | `.cursor/rules/` | `.cursor/hooks/` |
 | Kilo | `.kilo/kilo.json` | `.kilo/rules/` | `.kilo/hooks/` |
 
 ### Cross-Platform Reference
@@ -262,9 +260,9 @@ All AI platforms reference the **same core rules**:
 - `playwright-python-framework.md` - Framework workflow
 - `test-automation-guardrails.md` - Core guardrails
 
-### Agentic Commands
+### Claude Commands
 
-Available as slash commands in respective platforms:
+Available as slash commands in Claude:
 - `/feature-development` — Add new feature files and corresponding steps
 - `/test-debugging` — Triage failing tests
 - `/self-heal-tests` — Fix flaky selectors with locator fallbacks
@@ -275,14 +273,12 @@ Available as slash commands in respective platforms:
 
 Each platform runs its own session start hook to verify environment:
 - **Claude**: `.claude/hooks/session_start.py`
-- **Cursor**: `.cursor/hooks/session_start.py`
 - **Kilo**: `.kilo/hooks/session_start.py`
 
 ### Pre-Prompt Security Checks
 
 Each platform validates prompts for secrets before submission:
 - **Claude**: `.claude/hooks/user_prompt_submit.py`
-- **Cursor**: `.cursor/hooks/before_submit_prompt.py`
 - **Kilo**: `.kilo/hooks/before_prompt_submit.py`
 
 ---
@@ -292,7 +288,6 @@ Each platform validates prompts for secrets before submission:
 | Platform | MCP Server | Config Location |
 |----------|------------|-----------------|
 | Claude | playwright-local, filesystem-project | `.claude/settings.json` |
-| Cursor | @playwright/mcp | `.cursor/mcp.json` |
 | Kilo | @playwright/mcp | `.kilo/kilo.json` |
 
 ---
@@ -302,10 +297,9 @@ Each platform validates prompts for secrets before submission:
 When updating any rule or configuration:
 
 1. **Make the change** in the primary location
-2. **Copy to all three directories**:
-   - `.claude/rules/` → Claude Desktop
-   - `.cursor/rules/` → Cursor
-   - `.kilo/rules/` → Kilo
+2. **Copy to both directories**:
+    - `.claude/rules/` → Claude Desktop
+    - `.kilo/rules/` → Kilo
 3. **Update hooks** if behavior changes
 4. **Run validation**: `pytest --collect-only`
 
@@ -314,17 +308,12 @@ When updating any rule or configuration:
 ## Quick Reference by Platform
 
 ### Claude (/.claude)
-- **Commands**: `.claude/commands/` - test-debugging, self-heal-tests, feature-development, plan-regression-suite, generate-test-cases, agentic-ci-cd, agentic-bootstrap
-- **Agents**: `.claude/agents/` - qa-test-automation-engineer, test-architect, product-owner-business-analyst, scrum-team-leader
-
-### Cursor (/.cursor)
-- **Rules**: `.cursor/rules/` - python-coding-style.md, python-testing.md, playwright-python-framework.md, python-security.md, common-testing.md
-- **Skills**: `.cursor/skills/init/` - Environment initialization
-- **MCP**: `.cursor/mcp.json`
+- **Commands**: `.claude/commands/` - feature-development, test-debugging, self-heal-tests, generate-test-cases, plan-regression-suite, agentic-ci-cd, agentic-bootstrap
+- **Agents**: `.claude/agents/` - qa-test-automation-engineer, test-architect, test-generator, test-healer, test-planner, product-owner-business-analyst, scrum-team-leader
 
 ### Kilo (/.kilo)
 - **Commands**: `.kilo/command/` - verify, collect, debug, test
-- **Agents**: `.kilo/agent/` - test-planner, test-healer, test-generator
+- **Agents**: `.kilo/agent/` - test-executor, test-architect, test-generator, test-healer, test-planner, product-owner, scrum-master
 - **MCP**: `.kilo/mcp/fastmcp_server.py` - AI-powered test execution
 
 ---
@@ -334,7 +323,6 @@ When updating any rule or configuration:
 For detailed configuration of each AI platform, see:
 
 - **[CLAUDE.md](./CLAUDE.md)** - Claude-specific configuration (settings, hooks, commands, agents)
-- **[CURSOR.md](./CURSOR.md)** - Cursor-specific configuration (MCP, hooks, rules, skills)
 - **[KILO.md](./KILO.md)** - Kilo-specific configuration (commands, agents, FastMCP server, hooks)
 
 ---
@@ -351,5 +339,4 @@ For detailed configuration of each AI platform, see:
 ## Related Documentation
 
 - [Claude AGENTIC_QA_GUIDE](./.claude/AGENTIC_QA_GUIDE.md)
-- [Cursor AGENTIC_QA_GUIDE](./.cursor/AGENTIC_QA_GUIDE.md)
 - [Kilo AGENTIC_QA_GUIDE](./.kilo/AGENTIC_QA_GUIDE.md)

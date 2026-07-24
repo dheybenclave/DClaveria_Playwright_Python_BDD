@@ -73,7 +73,7 @@ class UIBasePage:
 ```gherkin
 @TC6 @positive_testing @login
 Scenario: User can login with valid credentials
-    Given the user is on the /login page
+    Given the user is on the login page
     When they enter valid credentials for role "standard_user"
     And they click the login button
     Then they should be redirected to the dashboard
@@ -108,7 +108,7 @@ If any step fails, fix before proceeding.
 - Keep feature files readable by non-technical stakeholders
 - Ensure scenario names are unique and imperative ("User can...", "System shows...")
 - Update `README.md`, `AGENTS.md`, and platform-specific docs when workflow conventions change
-- Sync rule files across `.kilo/rules/`, `.cursor/rules/`, `.claude/rules/` after any modification
+- Sync rule files across `.kilo/rules/` and `.claude/rules/` after any modification
 
 ## No-No List (Never Do)
 

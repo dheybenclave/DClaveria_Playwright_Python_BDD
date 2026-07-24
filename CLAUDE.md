@@ -80,6 +80,9 @@ Claude has the most comprehensive command set:
 |-------|------|-------------|
 | qa-test-automation-engineer | `.claude/agents/qa-test-automation-engineer.md` | QA automation specialist |
 | test-architect | `.claude/agents/test-architect.md` | Test architecture design |
+| test-generator | `.claude/agents/test-generator.md` | Generate BDD scenarios and page objects |
+| test-healer | `.claude/agents/test-healer.md` | Fix failing selectors and flaky tests |
+| test-planner | `.claude/agents/test-planner.md` | Plan regression suites and test strategies |
 | product-owner-business-analyst | `.claude/agents/product-owner-business-analyst.md` | Requirements analysis |
 | scrum-team-leader | `.claude/agents/scrum-team-leader.md` | Project management |
 
@@ -89,7 +92,7 @@ Claude has the most comprehensive command set:
 
 **Directory**: `.claude/rules/`
 
-All rules are synced with Cursor and Kilo:
+All rules are synced with Kilo:
 
 | Rule | Description |
 |------|-------------|
@@ -133,5 +136,4 @@ All rules are synced with Cursor and Kilo:
 
 - **Unified AGENTS.md**: See [AGENTS.md](./AGENTS.md) for all platform guidelines
 - **Kilo config**: [`.kilo/kilo.json`](.kilo/kilo.json)
-- **Cursor config**: [`.cursor/hooks.json`](.cursor/hooks.json)
 - **Agentic QA Guide**: [`.claude/AGENTIC_QA_GUIDE.md`](.claude/AGENTIC_QA_GUIDE.md)

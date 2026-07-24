@@ -92,5 +92,3 @@ Use these commands appropriately:
 
 - **Unified AGENTS.md**: See [AGENTS.md](./AGENTS.md) for all platform guidelines
 - **KILO.md**: See [KILO.md](./KILO.md) for Kilo-specific commands
-- **CLAUDE.md**: See [CLAUDE.md](./CLAUDE.md) for Claude-specific commands
-- **CURSOR.md**: See [CURSOR.md](./CURSOR.md) for Cursor-specific configuration

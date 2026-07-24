@@ -33,7 +33,7 @@ class PaymentPage(UIBasePage):
     def txt_expiry_year(self) -> Locator:
         return self.page.locator("[name=expiry_year]")
 
-    def validate_card_info(self, card_info_id):
+    def validate_card_info(self, card_info_id: str) -> None:
         self.logger.info(f"Validate Card Information using the Card ID :{card_info_id} from JSON")
 
         test_data = self.utils.get_json_data("card_information.json", card_info_id)
@@ -48,10 +48,10 @@ class PaymentPage(UIBasePage):
 
         self.logger.info("Card Details Entered Successfully")
 
-    def validate_verify_invoice_receipt(self):
+    def validate_verify_invoice_receipt(self) -> str:
         self.logger.info("Validate Generated Invoice Receipt")
 
-        results_dir = os.path.join(os.getcwd(), "test-results/test_state")
+        results_dir = str(Path(__file__).resolve().parents[2] / "test-results" / "test_state")
         if not os.path.exists(results_dir):
             os.makedirs(results_dir)
 
@@ -78,7 +78,7 @@ class PaymentPage(UIBasePage):
         return file_path
 
 
-    def verify_invoice_content(self, file_path):
+    def verify_invoice_content(self, file_path: str) -> None:
         self.logger.info(f"Verify Generated Invoice Receipt Content of: {file_path}")
 
         if not os.path.exists(file_path):
@@ -99,4 +99,3 @@ class PaymentPage(UIBasePage):
         self.logger.info(f"Successfully verified Amount: '{expected_amount}' matches the invoice receipt.")
 
         self.logger.info(f"Verify Generated Invoice Receipt Successfully! : {file_path} ")
-

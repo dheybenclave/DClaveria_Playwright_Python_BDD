@@ -1,5 +1,5 @@
 print(
     "[Kilo QA Agentic] File edited. Suggested quick checks: "
-    "python .cursor/skills/init/scripts/smoke_collect.py "
+    "pytest --collect-only "
     "and rerun the affected test marker."
 )

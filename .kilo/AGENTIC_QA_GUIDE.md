@@ -6,9 +6,8 @@ Use this guide when running the framework with Kilo CLI project configuration.
 
 1. Install dependencies: `pip install -r requirements.txt`
 2. Install browsers: `python -m playwright install --with-deps`
-3. Run bootstrap checks:
-   - `python .cursor/skills/init/scripts/verify_env.py`
-   - `python .cursor/skills/init/scripts/smoke_collect.py`
+3. Verify test discovery:
+   - `pytest --collect-only`
 4. Optional one-command bootstrap (Windows):
    - `./scripts/bootstrap_agentic_qa.ps1`
 
@@ -57,12 +56,10 @@ kilo "Use test-generator to create login tests"
 ## 5) Kilo Workflow
 
 1. **Initialize session**:
-   - `python .cursor/skills/init/scripts/verify_env.py`
-2. **Collect tests**:
    - `pytest --collect-only -q`
-3. **Run targeted tests**:
+2. **Run targeted tests**:
    - `pytest -m "TC6 or TC7" -q`
-4. **Use Kilo agents for**:
+3. **Use Kilo agents for**:
    - Test planning and analysis
    - Self-healing flaky tests
    - Generating new test cases
@@ -86,9 +83,9 @@ These pipelines execute init checks and targeted marker runs.
 
 | Issue | Solution |
 |-------|----------|
-| Tests fail | Run verify_env.py first |
+| Tests fail | Run `pytest --collect-only` first |
 | Selector failures | Use `test-healer` agent |
-| Environment issues | Check .env file and env variables |
+| Environment issues | Check `.env` file and env variables |
 
 ## 9) Key Paths
 
@@ -110,5 +107,3 @@ These pipelines execute init checks and targeted marker runs.
 | Platform | Code Style | Testing Rules | Security |
 |----------|------------|---------------|----------|
 | **Kilo** | [`.kilo/rules/python-coding-style.md`](.kilo/rules/python-coding-style.md) | [`.kilo/rules/common-testing.md`](.kilo/rules/common-testing.md) | [`.kilo/rules/python-security.md`](.kilo/rules/python-security.md) |
-| **Claude** | - | [`.claude/rules/test-automation-guardrails.md`](.claude/rules/test-automation-guardrails.md) | - |
-| **Cursor** | [`.cursor/rules/python-coding-style.md`](.cursor/rules/python-coding-style.md) | [`.cursor/rules/common-testing.md`](.cursor/rules/common-testing.md) | [`.cursor/rules/python-security.md`](.cursor/rules/python-security.md) |

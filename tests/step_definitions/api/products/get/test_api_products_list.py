@@ -5,7 +5,7 @@ from pytest_bdd import when, then, parsers
 
 # Using target_fixture to pass data between steps (Performance, json, Response)
 @when(parsers.parse('I send a "{method}" request to "{endpoint}"'), target_fixture="api_response_data")
-def send_request(pages, method, endpoint):
+def send_request(pages, method: str, endpoint: str) -> dict:
     endpoint_key = endpoint.strip().lower()
     if endpoint_key == "/api/productslist":
         api_client = pages.api.all_products
@@ -26,12 +26,12 @@ def send_request(pages, method, endpoint):
     duration_ms = round((time.perf_counter() - start_time) * 1000)
     response_json = response.json()
 
-    # Store in global context
+    # Store serializable data in global context
     from utils.test_state import test_context
     test_context.last_response = {
-        "response": response,
         "json": response_json,
         "status": response.status,
+        "status_text": response.status_text,
         "duration": duration_ms,
         "endpoint": endpoint,
         "method": method
@@ -41,30 +41,8 @@ def send_request(pages, method, endpoint):
 
 
 @then(parsers.parse('the API response status code should be {status:d}'))
-def verify_status(pages, api_response_data, status):
-    response_json = api_response_data.get("json", {})
-    response_status = api_response_data.get("status", 200)
-    response = api_response_data.get("response")
-    if "products" in response_json:
-        if response:
-            pages.api.all_products.verify_response_status_code(response, status)
-            return
-        # Fallback if response object not available
-        response_code = response_json.get("responseCode", response_status)
-        assert response_code == status, f"Expected responseCode {status}, but got {response_code}"
-        return
-    if "brands" in response_json:
-        if response:
-            pages.api.get_all_brands_list.verify_response_status_code(response, status)
-            return
-        response_code = response_json.get("responseCode", response_status)
-        assert response_code == status, f"Expected responseCode {status}, but got {response_code}"
-        return
-    if "message" in response_json:
-        response_code = response_json.get("responseCode", response_status)
-        assert response_code == status, f"Expected responseCode {status}, but got {response_code}"
-        return
-    raise AssertionError("Unknown response payload; cannot verify status.")
+def verify_status(pages, api_response_data: dict, status: int) -> None:
+    pages.api.validate_status(api_response_data, status)
 
 
 @then("the response should contain a list of products")
@@ -73,6 +51,14 @@ def verify_list_exists(api_response_data):
     json_data = api_response_data["json"]
     assert "products" in json_data, "Key 'products' missing from response"
     assert len(json_data["products"]) > 0, "Product list is empty"
+
+
+@then("the response should contain products data")
+def verify_products_data(api_response_data):
+    """Verify response contains products data"""
+    json_data = api_response_data["json"]
+    assert "products" in json_data, "Key 'products' missing from response"
+    assert isinstance(json_data["products"], list), "Products should be a list"
 
 
 @then(parsers.parse('every product should have the following parameter:'))

@@ -6,9 +6,8 @@ Use this guide when running the framework with Claude-style project config.
 
 1. Install dependencies: `pip install -r requirements.txt`
 2. Install browsers: `python -m playwright install --with-deps`
-3. Run bootstrap checks:
-   - `python .cursor/skills/init/scripts/verify_env.py`
-   - `python .cursor/skills/init/scripts/smoke_collect.py`
+3. Verify test discovery:
+   - `pytest --collect-only`
 4. Optional one-command bootstrap (Windows):
    - `./scripts/bootstrap_agentic_qa.ps1`
 
@@ -55,6 +54,4 @@ These pipelines execute init checks and targeted marker runs.
 
 | Platform | Code Style | Testing Rules | Security |
 |----------|------------|---------------|----------|
-| **Kilo** | [`.kilo/rules/python-coding-style.md`](.kilo/rules/python-coding-style.md) | [`.kilo/rules/common-testing.md`](.kilo/rules/common-testing.md) | [`.kilo/rules/python-security.md`](.kilo/rules/python-security.md) |
-| **Claude** | - | [`.claude/rules/test-automation-guardrails.md`](.claude/rules/test-automation-guardrails.md) | - |
-| **Cursor** | [`.cursor/rules/python-coding-style.md`](.cursor/rules/python-coding-style.md) | [`.cursor/rules/common-testing.md`](.cursor/rules/common-testing.md) | [`.cursor/rules/python-security.md`](.cursor/rules/python-security.md) |
+| **All** | [`.kilo/rules/python-coding-style.md`](.kilo/rules/python-coding-style.md) | [`.kilo/rules/common-testing.md`](.kilo/rules/common-testing.md) | [`.kilo/rules/python-security.md`](.kilo/rules/python-security.md) |

@@ -42,8 +42,10 @@ class CommonPage(UIBasePage):
         return self.page
 
     def navigate_to_by_text(self, target: str):
-        self.logger.info(f"Navigating using text {target}")
-        self.nav_menu_items().filter(has_text=target).click()
+        # Strip quotes from the target if present (e.g., '"Products"' -> 'Products')
+        clean_target = target.strip('"\'')
+        self.logger.info(f"Navigating using text {clean_target}")
+        self.nav_menu_items().filter(has_text=clean_target).click()
         self.page.wait_for_load_state("domcontentloaded", timeout=15000)
         return self.page
 
@@ -73,10 +75,9 @@ class CommonPage(UIBasePage):
 
         self.verify_element_visible(locator)
 
-        try:
-            locator.click(force=True, timeout=5000)
-        except Exception:
-            locator.evaluate("el => el.click()")
+        expect(locator).to_be_enabled(timeout=5000)
+        expect(locator).to_be_visible(timeout=5000)
+        locator.click()
 
     def enter_text(self, locator: str | Locator, value: str):
         self.logger.info(f"Enter Text {locator}")
